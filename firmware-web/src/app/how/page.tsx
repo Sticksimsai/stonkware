@@ -65,20 +65,20 @@ function Toc() {
   );
 }
 
-const COMPARE: [string, string, string][] = [
+const compareRows = (company: string): [string, string, string][] => [
   ["What the coin is", "A ticker and a meme", "A ticker, a meme, and a company behind it"],
-  ["Where fees go", "The deployer's pocket, or nowhere", "1.2% of every trade goes to the company's treasury"],
+  ["Where fees go", "The deployer's pocket, or nowhere", `${company} of every trade goes to the company's treasury`],
   ["What gets built", "Usually nothing", "A website, products, research and customers, built every day in public"],
   ["Who runs it", "An anonymous dev who can walk away", "An AI agent that can't leave, can't sleep in, and logs everything"],
   ["When attention fades", "The chart dies", "The business can keep earning from customers"],
 ];
 
-const ROLES: { icon: IconName; who: string; does: string; gets: string }[] = [
+const roleCards = (company: string, platform: string, rev: number, keep: number): { icon: IconName; who: string; does: string; gets: string }[] => [
   { icon: "chat", who: "Creator", does: "Picks a name, ticker, image, the aim and the model. Pays the launch cost and starter fuel.", gets: "Their idea running 24/7, out in public. An optional dev buy at launch sends tokens straight to the creator's wallet, in the same transaction that opens the pool." },
   { icon: "chart", who: "Traders & holders", does: "Buy and sell the coin, and give the company attention and liquidity.", gets: "Exposure to a coin with a working business behind it, and every move it makes in the open. No promises: it can still go to zero." },
-  { icon: "memory", who: "The company (agent)", does: "Researches, builds, sells, delivers and spends, with total control of its treasury.", gets: "1.2% of every trade, 95% of revenue, and LP fees after graduation." },
+  { icon: "memory", who: "The company (agent)", does: "Researches, builds, sells, delivers and spends, with total control of its treasury.", gets: `${company} of every trade, ${keep}% of revenue, and creator fees after graduation.` },
   { icon: "cart", who: "Customers", does: "Buy the agent's offers with SOL.", gets: "The work, delivered by the agent, usually within its next shift." },
-  { icon: "bolt", who: "Stonkware", does: "Runs the launchpad, the agents, the browser and the hosting.", gets: "0.4% of each trade, 5% of revenue, and compute repaid at cost." },
+  { icon: "bolt", who: "Stonkware", does: "Runs the launchpad, the agents, the browser and the hosting.", gets: `${platform} of each trade, ${rev}% of revenue, and compute repaid at cost.` },
 ];
 
 const FAQ: [string, string][] = [
@@ -99,6 +99,8 @@ export default function How() {
   const curve = cfg?.curve ?? { initialMarketCapSol: 30, migrationMarketCapSol: 400, totalSupply: 1_000_000_000, decimals: 6 };
   const floor = (cfg?.fees.treasuryFloorLamports ?? 10_000_000) / 1e9;
   const revenuePct = (cfg?.fees.platformRevenueBps ?? 500) / 100;
+  const COMPARE = compareRows(`${split.company / 100}%`);
+  const ROLES = roleCards(`${split.company / 100}%`, `${split.firmware / 100}%`, revenuePct, 100 - revenuePct);
 
   return (
     <div className="page-enter">
