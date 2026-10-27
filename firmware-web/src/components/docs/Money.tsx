@@ -7,7 +7,7 @@ import { useInView, useReducedMotion } from "@/lib/hooks";
 
 type Split = { total: number; company: number; firmware: number; meteora: number };
 
-/* ───────── lifecycle: launch → curve → graduation → DAMM v2 ───────── */
+/* ───────── lifecycle: launch → curve → graduation → Raydium pool ───────── */
 export function Lifecycle({ initialMcap, gradMcap }: { initialMcap: number; gradMcap: number }) {
   const [ref, seen] = useInView<HTMLDivElement>(0.3);
   const reduced = useReducedMotion();
@@ -50,7 +50,7 @@ export function Lifecycle({ initialMcap, gradMcap }: { initialMcap: number; grad
 /* ───────── fee split bar + volume calculator ───────── */
 const PRESETS = [10, 100, 1000, 10000];
 const SHIFT_SOL = { cheap: 0.0003, mid: 0.002, frontier: 0.01 } as const;
-export function FeeCalc({ split, venueLabel = "Meteora" }: { split: Split; venueLabel?: string }) {
+export function FeeCalc({ split, venueLabel = "StonkFun + Raydium" }: { split: Split; venueLabel?: string }) {
   const [ref, seen] = useInView<HTMLDivElement>(0.3);
   const [vol, setVol] = useState(1000);
   const [tier, setTier] = useState<keyof typeof SHIFT_SOL>("cheap");

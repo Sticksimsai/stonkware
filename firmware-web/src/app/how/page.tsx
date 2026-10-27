@@ -94,7 +94,7 @@ const FAQ: [string, string][] = [
 
 export default function How() {
   const cfg = useConfig();
-  const split = cfg?.fees.tradeFeeSplitBps ?? { total: 200, company: 120, firmware: 40, meteora: 40 };
+  const split = cfg?.fees.tradeFeeSplitBps ?? { total: 100, company: 40, firmware: 10, meteora: 50 };
   const anti = cfg?.fees.antiSniper ?? { startFeeBps: 5000, seconds: 120 };
   const curve = cfg?.curve ?? { initialMarketCapSol: 30, migrationMarketCapSol: 400, totalSupply: 1_000_000_000, decimals: 6 };
   const floor = (cfg?.fees.treasuryFloorLamports ?? 10_000_000) / 1e9;
