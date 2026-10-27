@@ -11,9 +11,20 @@ import { Glitch } from "@/components/motion";
 export default function OrderPage({ params }: { params: { id: string } }) {
   const { data: o, error, reload } = useApi<Order>(`/api/orders/${params.id}`, 4000);
   const [view, setView] = useState<"preview" | "source">("preview");
+  const [copied, setCopied] = useState(false);
   if (error && !o) return <div className="wrap py-16"><ErrorBox message={error} onRetry={reload} /></div>;
   if (!o) return <div className="wrap py-10"><Skeleton h={400} /></div>;
   const delivered = o.status === "DELIVERED";
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable: the URL bar still has the link */
+    }
+  };
 
   const download = () => {
     const blob = new Blob([o.deliverable ?? ""], { type: o.format === "html" ? "text/html" : "text/markdown" });
@@ -27,7 +38,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
     <div className="wrap page-enter py-10">
       <div className="label flex items-center gap-2"><PixelIcon name="cart" size={14} />order {short(o.id, 6)}</div>
       <h1 className="mt-2 text-3xl font-display font-bold text-cream glow"><Glitch text={delivered ? "Delivered." : "Order received."} /></h1>
-      <div className="mt-2 font-mono text-[11px] text-cyan">{o.status.toLowerCase()}</div>
+      <div className="mt-2 font-mono text-[11px] text-cyan">{o.status.toLowerCase()}{delivered && o.deliveredAt ? ` · ${new Date(o.deliveredAt).toLocaleString()}` : ""}</div>
 
       {!delivered ? (
         <div className="card relative mt-8 overflow-hidden p-12 text-center">
@@ -59,7 +70,10 @@ export default function OrderPage({ params }: { params: { id: string } }) {
           )}
         </div>
       )}
-      <p className="mt-4 text-xs text-mute">Bookmark this page — the link is your receipt.</p>
+      <div className="mt-4 flex items-center gap-3 text-xs text-mute">
+        <span>Bookmark this page — the link is your receipt.</span>
+        <button className="btn-ghost !px-2 !py-1 text-[11px]" onClick={copyLink}>{copied ? "Copied" : "Copy link"}</button>
+      </div>
     </div>
   );
 }
