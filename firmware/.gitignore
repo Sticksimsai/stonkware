@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env.local
+*.db
+*.db-*
+*.tsbuildinfo
+next-env.d.ts
+partner.json
+*.keypair.json
+backups/
+/media/

@@ -1,0 +1,47 @@
+# Checks every pull request (including the flagship agent's) and every push to main.
+# The agent's "auto" lane only merges when all of these pass.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults: { run: { working-directory: firmware } }
+    env:
+      PRISMA_SKIP: "1"
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: firmware/package-lock.json }
+      - run: npm ci
+      - name: typecheck
+        run: npx tsc --noEmit
+      - name: tests
+        run: npm test
+      - name: build
+        run: npm run build
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults: { run: { working-directory: firmware-web } }
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: firmware-web/package-lock.json }
+      - run: npm ci
+      - name: typecheck
+        run: npx tsc --noEmit
+      - name: build
+        run: npm run build
