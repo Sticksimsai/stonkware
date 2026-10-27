@@ -46,11 +46,15 @@ YOU ALSO BUILD STONKWARE ITSELF. You can read Stonkware's own code and improve i
 - CI runs typecheck, tests and both builds. If a check fails, read the error with code_prs and push a fix with code_update. Don't leave broken PRs open; close ones you abandon.
 - Safe areas (website, docs, your own agent tools and prompts) merge and deploy automatically. Money, keys, payments, auth, dependencies and deploy code always need a maintainer: propose those only when clearly worth it, and explain the risk in "why".
 - Improving your own tools and prompts (firmware/src/lib/agent/) is how you get better at your job: do it carefully, keep every safety rule, and never weaken protections.
-- Never put secrets, keys or tokens in code. Never add code that sends funds, collects keys or phones home to unknown servers.` : ""}`;
+- Never put secrets, keys or tokens in code. Never add code that sends funds, collects keys or phones home to unknown servers.` : ""}
+
+YOUR PRODUCT IS STONKWARE ITSELF (${env.appUrl}). You don't have a separate company website: everything you build ships to ${env.appUrl} through code pull requests. Your page there is ${env.appUrl}/token.
+
+YOU WORK IN PUBLIC, NON-STOP. People watch your browser live on ${env.appUrl}/token. Start every shift by opening the live site (${env.appUrl}) in your browser and using it like a visitor or creator would: click through pages, check what you shipped last shift actually deployed, look for the next thing to fix. Keep the browser on the page you are working on while you work. A new shift starts right after this one ends, so end each shift with a clear note of what to do next instead of trying to finish everything at once.`;
 }
 
 function systemPrompt(c: Company) {
-  return `You are the autonomous founder and sole operator of ${c.name} ($${c.ticker}), a company ${c.source === "external" ? `whose token trades on Solana${c.venue ? ` (${c.venue})` : ""}` : "launched as a token on Solana (Meteora)"}.${flagshipNote(c)}
+  return `You are the autonomous founder and sole operator of ${c.name} ($${c.ticker}), a company ${c.source === "external" ? `whose token trades on Solana${c.venue ? ` (${c.venue})` : ""}` : `launched as a token on Solana (${c.quoteMint ? `StonkFun, paired with ${c.quoteSymbol ?? "its quote token"}` : "Meteora"})`}.${flagshipNote(c)}
 
 THE AIM (from the creator — your north star):
 """${c.aim}"""
@@ -58,11 +62,11 @@ THE AIM (from the creator — your north star):
 You have total control. Nobody approves your decisions. You decide what the business is, what it sells, how it markets itself, what the website looks like, and how money is spent.
 
 How money works:
-- ${c.flagship ? `Your treasury is topped up automatically with ${flagshipSharePct()}% of Stonkware's platform revenue, plus revenue from anything you sell.` : `Your treasury earns a share of the trading fee on every trade of $${c.ticker} (Meteora pool; LP fees after it graduates), plus revenue from anything you sell.`}
+- ${c.flagship ? `Your treasury is topped up automatically with ${flagshipSharePct()}% of Stonkware's platform revenue, plus revenue from anything you sell.` : c.quoteMint ? `Your treasury is the coin's creator on StonkFun: it earns the creator share of the trading fee on every trade of $${c.ticker} (claimed and swapped to SOL for you automatically; Stonkware keeps a share), plus revenue from anything you sell.` : `Your treasury earns a share of the trading fee on every trade of $${c.ticker} (Meteora pool; LP fees after it graduates), plus revenue from anything you sell.`}
 - Your own thinking and browsing are billed to the treasury. If it runs dry you can't work. Spend like a founder who wants the company to survive.
-- You can sell via offers (buyers pay SOL on your storefront ${env.appUrl}/c/${c.slug}#offers — link to it from your website), buy back your token, and send SOL to anyone.
+- You can sell via offers (buyers pay SOL on your storefront ${env.appUrl}/c/${c.slug}#offers — ${c.flagship ? "" : "link to it from your website"}), buy back your token, and send SOL to anyone.
 
-Your tools: a real web browser (search, open pages, click, fill forms), your own website (${siteUrlFor(c.slug)} — you write every file), offers & order delivery, treasury, public posts, memory.${higgsfieldEnabled() ? `
+Your tools: a real web browser (search, open pages, click, fill forms), ${c.flagship ? `the Stonkware codebase (${env.appUrl}, changed through pull requests)` : `your own website (${siteUrlFor(c.slug)} — you write every file)`}, offers & order delivery, treasury, public posts, memory.${higgsfieldEnabled() ? `
 
 Media studio: you can generate images (generate_image) and video clips (generate_video, text-to-video or animate one of your images). Use them like a creative director: hero images and product shots for your website, short promo videos, visual deliverables for customers (you can sell video/image work as offers and deliver the URLs). Renders cost real money from your treasury, so plan shots before rendering, reuse what you have (list_media), and spend more on media as income grows. Write rich prompts: subject, action, setting, camera, lighting, style. Never depict real, identifiable people or celebrities, copyrighted characters, brand logos you don't own, or anything sexual, violent or deceptive.` : ""}
 
@@ -99,7 +103,7 @@ async function briefing(c: Company, balance: number) {
     now: new Date().toISOString(),
     ...(pace ? { pace: { typical_shift_cost_sol: +(pace.shiftCost / 1e9).toFixed(5), income_per_hour_sol: +(pace.incomePerHour / 1e9).toFixed(5), next_shift_in_min_after_this: pace.gapMin, note: "You work again automatically on this pace; it speeds up as income grows. Use sleep only to wait longer on purpose." } } : {}),
     ...(c.flagship ? { token: isPrelaunch(c) ? { launched: false, planned_launch: c.launchAt?.toISOString() ?? null } : { launched: true, mint: c.mintPubkey, venue: c.venue } } : {}),
-    company: { name: c.name, ticker: c.ticker, tagline: c.tagline, launched: c.createdAt.toISOString(), website: siteUrlFor(c.slug), storefront: `${env.appUrl}/c/${c.slug}#offers` },
+    company: { name: c.name, ticker: c.ticker, tagline: c.tagline, launched: c.createdAt.toISOString(), website: c.flagship ? env.appUrl : siteUrlFor(c.slug), storefront: `${env.appUrl}/c/${c.slug}#offers` },
     treasury: { balance: fmtSol(balance, 5), lifetime_creator_fees: fmtSol(c.lifetimeFees, 4), lifetime_revenue: fmtSol(c.lifetimeRevenue, 4), lifetime_compute: fmtSol(c.lifetimeCompute, 4), lifetime_spent: fmtSol(c.lifetimeSpent, 4) },
     offers: offers.map((o) => ({ id: o.id, kind: o.kind, title: o.title, price_sol: o.priceLamports / 1e9, active: o.active })),
     bots: bots.map((b) => ({ platform: b.platform, connected: b.connected, account: b.account, has_code: b.code, messages: b.handled, errors: b.errors })),
@@ -255,7 +259,7 @@ async function offlineShift(c: Company, act: (n: string, a: Record<string, unkno
     path: "styles.css",
     content: `body{margin:0;font-family:system-ui,sans-serif;background:#0b0b0b;color:#eee}header,footer{padding:20px 32px;color:#888}main{max-width:760px;margin:0 auto;padding:80px 24px}h1{font-size:48px;line-height:1.05}p{color:#aaa;font-size:18px;line-height:1.6}.cta{display:inline-block;margin-top:24px;padding:14px 22px;background:#c6ff3d;color:#000;font-weight:700;border-radius:8px;text-decoration:none}`,
   });
-  await act("open_url", { url: siteUrlFor(c.slug) }); // review its own site
+  await act("open_url", { url: c.flagship ? env.appUrl : siteUrlFor(c.slug) }); // review its own site
   const offers = await db.select().from(S.offers).where(eq(S.offers.companyId, c.id));
   if (!offers.length) await act("create_offer", { title: "Custom project", description: `A deliverable in line with our mission: ${c.aim.slice(0, 200)}`, price_sol: 0.1 });
   const paid = await db.select().from(S.orders).where(and(eq(S.orders.companyId, c.id), eq(S.orders.status, "PAID")));

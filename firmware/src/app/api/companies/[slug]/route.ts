@@ -30,7 +30,7 @@ export const GET = handle(async (_req: Request, { params }: { params: { slug: st
       tokensBurned: c.tokensBurned, sleepingUntil: c.sleepingUntil, lastRunAt: c.lastRunAt, createdAt: c.createdAt,
       balanceLamports,
       imageUrl: c.hasImage ? `${env.siteUrl}/api/image/${c.id}` : null,
-      websiteUrl: d.files.length ? siteUrlFor(c.slug) : null,
+      websiteUrl: c.flagship ? env.appUrl : d.files.length ? siteUrlFor(c.slug) : null,
       links: env.mode === "live" && c.status === "LIVE" && env.cluster !== "devnet" && !isPrelaunch(c)
         ? { trade: c.quoteMint ? stonkfunTokenUrl(c.mintPubkey) : `https://jup.ag/tokens/${c.mintPubkey}`, chart: `https://dexscreener.com/solana/${c.mintPubkey}`, treasury: explorer("account", c.treasuryPubkey) }
         : { trade: null, chart: null, treasury: explorer("account", c.treasuryPubkey) },

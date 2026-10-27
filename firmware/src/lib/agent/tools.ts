@@ -83,9 +83,13 @@ export const MERCH_TOOLS = new Set(["merch_catalog", "merch_product", "create_me
 export const DEV_TOOLS = new Set(["code_tree", "code_read", "code_search", "code_propose", "code_update", "code_prs", "code_close"]);
 
 /** Tool list with live prices filled in; media tools only when the studio is enabled. */
+const SITE_TOOLS = new Set(["write_site_file", "read_site_file", "list_site_files", "delete_site_file"]);
+
 export function toolsFor(mediaOn: boolean, c?: Pick<Company, "flagship">): ToolDef[] {
   const devOn = !!c?.flagship && dev.selfdevEnabled();
-  return TOOLS.filter((t) => (mediaOn || !MEDIA_TOOLS.has(t.name)) && (merchEnabled() || !MERCH_TOOLS.has(t.name)) && (devOn || !DEV_TOOLS.has(t.name))).map((t) => ({
+  // the flagship has no separate company website: its product is Stonkware itself, changed through code PRs
+  const siteOn = !c?.flagship;
+  return TOOLS.filter((t) => (mediaOn || !MEDIA_TOOLS.has(t.name)) && (merchEnabled() || !MERCH_TOOLS.has(t.name)) && (devOn || !DEV_TOOLS.has(t.name)) && (siteOn || !SITE_TOOLS.has(t.name))).map((t) => ({
     ...t,
     description: t.description.replace("IMAGE_USD", estimateUsd("image").toFixed(3)).replace("VIDEO_USD", (estimateUsd("video", 1)).toFixed(3)),
   }));

@@ -42,6 +42,10 @@ export async function scheduleNext(companyId: string) {
   const c = await db.query.companies.findFirst({ where: eq(schema.companies.id, companyId) });
   if (!c) return null;
   const p = await computePace(c);
-  await db.update(schema.companies).set({ nextShiftAt: new Date(Date.now() + p.gapMin * 60_000) }).where(eq(schema.companies.id, c.id));
-  return p;
+  // the flagship works continuously: next shift right after this one (FLAGSHIP_CONTINUOUS=0 to pace it like the others).
+  // Out of fuel is still handled at shift start (it sleeps and re-checks every 10 minutes).
+  const continuous = c.flagship && process.env.FLAGSHIP_CONTINUOUS !== "0";
+  const gapMs = continuous ? num("FLAGSHIP_GAP_SEC", 20) * 1000 : p.gapMin * 60_000;
+  await db.update(schema.companies).set({ nextShiftAt: new Date(Date.now() + gapMs) }).where(eq(schema.companies.id, c.id));
+  return { ...p, gapMin: continuous ? gapMs / 60_000 : p.gapMin };
 }

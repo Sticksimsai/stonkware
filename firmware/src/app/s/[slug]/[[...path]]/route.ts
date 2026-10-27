@@ -2,6 +2,7 @@
 // Sandboxed via CSP so agent-written scripts run in an opaque origin and can't touch Stonkware.
 import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,8 +12,10 @@ const placeholder = (name: string) => `<!doctype html><meta charset="utf-8"><met
 <div>${name} — the agent hasn't built its website yet.</div></body>`;
 
 export async function GET(req: Request, { params }: { params: { slug: string; path?: string[] } }) {
-  const c = await db.query.companies.findFirst({ where: eq(schema.companies.slug, params.slug), columns: { id: true, name: true, status: true } });
+  const c = await db.query.companies.findFirst({ where: eq(schema.companies.slug, params.slug), columns: { id: true, name: true, status: true, flagship: true } });
   if (!c || c.status === "ARCHIVED") return new Response("not found", { status: 404 });
+  // the flagship's "website" is Stonkware itself
+  if (c.flagship) return Response.redirect(`${env.appUrl.replace(/\/+$/, "")}/token`, 302);
   let path = (params.path ?? []).join("/") || "index.html";
   if (path.endsWith("/")) path += "index.html";
   let f = await db.query.siteFiles.findFirst({ where: and(eq(schema.siteFiles.companyId, c.id), eq(schema.siteFiles.path, path)) });
