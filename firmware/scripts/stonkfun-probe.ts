@@ -52,6 +52,13 @@ const info = (m: string) => console.log(`  ${m}`);
   const a = poolAccounts(programId, mintA, mintB, new PublicKey(pricing.platformId), payer, pricing.configId ? new PublicKey(pricing.configId) : undefined);
   const derivedConfig = poolAccounts(programId, mintA, mintB, new PublicKey(pricing.platformId), payer).configId;
   if (pricing.configId) (derivedConfig.equals(a.configId) ? ok : (m: string) => { console.log(`\x1b[33m!\x1b[0m ${m}`); })(`config id ${pricing.configId === derivedConfig.toBase58() ? "matches the derived PDA" : `differs from derived ${derivedConfig.toBase58()} (using StonkFun's)`}`);
+  {
+    const { getPdaPlatformAllowConfig, getPdaPlatformCurveRule } = await import("@raydium-io/raydium-sdk-v2");
+    const dAllow = getPdaPlatformAllowConfig(programId, a.platformId, a.configId).publicKey.toBase58();
+    const dRule = getPdaPlatformCurveRule(programId, a.platformId, a.configId).publicKey.toBase58();
+    if (pricing.allowConfig) (pricing.allowConfig === dAllow ? ok : bad)(`allow-config ${pricing.allowConfig === dAllow ? "matches" : `differs from derived ${dAllow}`}`);
+    if (pricing.curveRule) (pricing.curveRule === dRule ? ok : bad)(`curve-rule ${pricing.curveRule === dRule ? "matches" : `differs from derived ${dRule}`}`);
+  }
   for (const [name, key] of [["program", programId], ["platform", a.platformId], ["global config", a.configId], ["quote mint", mintB]] as const) {
     const acc = await conn.getAccountInfo(key).catch(() => null);
     acc ? ok(`${name} exists on-chain (${key.toBase58()})`) : (bad(`${name} NOT found on-chain: ${key.toBase58()}`), failures++);

@@ -56,6 +56,8 @@ const list = (j: unknown): unknown[] => {
   const inner = pick(u, ["items", "pairs", "results", "data"]);
   return Array.isArray(inner) ? inner : [];
 };
+/** A base58 public key string, or null (ignores booleans, objects, notes). */
+export const pkOrNull = (v: unknown): string | null => (typeof v === "string" && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(v) ? v : null);
 const truthy = (v: unknown) => v === true || v === "true" || v === 1;
 
 function normPair(p: unknown): Pair | null {
@@ -102,6 +104,7 @@ export async function launchPricing(quoteMint: string): Promise<Pricing> {
   const raise = pick(raw, ["raise.raw", "pricing.raise.raw", "totalFundRaisingB", "curve.totalFundRaisingB"]);
   if (supply == null || totalSellA == null || raise == null) throw new Error("StonkFun pricing is missing supply / totalSellA / raise");
   const allowAvail = pick(raw, ["allowConfig.available.standard"]);
+  if (allowAvail === false || allowAvail === "false") throw new Error("StonkFun's standard platform isn't accepting this quote token right now");
   const mt = String(pick(raw, ["curve.migrateType", "migrateType"]) ?? "cpmm").toLowerCase();
   const feeOn = pick(raw, ["curve.cpmmCreatorFeeOn", "cpmmCreatorFeeOn"]);
   return {
@@ -112,9 +115,10 @@ export async function launchPricing(quoteMint: string): Promise<Pricing> {
     supply: String(supply), totalSellA: String(totalSellA), totalFundRaisingB: String(raise),
     migrateType: mt === "amm" || mt === "0" ? "amm" : "cpmm",
     cpmmCreatorFeeOn: feeOn == null ? null : Number(feeOn === "BothToken" ? 1 : feeOn === "OnlyTokenB" ? 0 : feeOn),
-    allowConfig: typeof allowAvail === "string" ? allowAvail : s(allowAvail),
-    allowConfigRequired: truthy(pick(raw, ["allowConfig.required"])),
-    curveRule: s(pick(raw, ["curveRule.standard", "curveRule.address", "curveRule"])),
+    // addresses: allowConfig.standard / curveRule.standard (booleans live under .available / .required)
+    allowConfig: pkOrNull(pick(raw, ["allowConfig.standard", "allowConfig.address"])),
+    allowConfigRequired: truthy(pick(raw, ["allowConfig.required.standard", "allowConfig.required"])),
+    curveRule: pkOrNull(pick(raw, ["curveRule.standard", "curveRule.address", "curveRule"])),
     raw,
   };
 }
