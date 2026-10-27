@@ -79,7 +79,7 @@ export async function launchPairs(): Promise<Pair[]> {
   const out: Pair[] = [];
   let cursor: string | null = null;
   for (let page = 0; page < 10; page++) {
-    const q: string = `/api/v2/pairs?launchable=true&launchLabReady=true&limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+    const q: string = `/api/public/v1/pairs?launchable=true&launchLabReady=true${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
     const j = await get(q, 5 * 60_000);
     for (const p of list(j)) { const n = normPair(p); if (n) out.push(n); }
     cursor = (pick(j, ["page.nextCursor", "nextCursor", "meta.nextCursor"]) as string | undefined) ?? null;
@@ -94,7 +94,7 @@ export async function findPair(mint: string): Promise<Pair | null> {
 
 /** LaunchLab parameters for a quote token: curve, raise, platform + allow/curve-rule accounts. Read on every launch. */
 export async function launchPricing(quoteMint: string): Promise<Pricing> {
-  const raw = unwrap(await get(`/api/v2/launchlab/pricing?quoteMint=${encodeURIComponent(quoteMint)}`));
+  const raw = unwrap(await get(`/api/public/v1/launchlab/pricing?quoteMint=${encodeURIComponent(quoteMint)}`));
   const platformId = s(pick(raw, ["platform.standard", "pricing.platform.standard", "platforms.standard"]));
   if (!platformId) throw new Error("StonkFun pricing has no standard platform id for this quote");
   const supply = pick(raw, ["curve.supply", "pricing.curve.supply", "supply"]);
@@ -121,7 +121,7 @@ export async function launchPricing(quoteMint: string): Promise<Pricing> {
 
 /** Token snapshot from StonkFun (adoption, graduation, price). Null when it isn't adopted (yet). */
 export async function stonkToken(mint: string): Promise<Record<string, unknown> | null> {
-  try { return unwrap(await get(`/api/v2/tokens/${mint}`, 30_000)) as Record<string, unknown>; } catch { return null; }
+  try { return unwrap(await get(`/api/public/v1/tokens/${mint}`, 30_000)) as Record<string, unknown>; } catch { return null; }
 }
 
 export const stonkfunTokenUrl = (mint: string) => `${base()}/token/${mint}`;

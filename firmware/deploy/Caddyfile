@@ -32,7 +32,7 @@
 }
 
 # company websites on their own subdomain (certificates issued on demand, only for real companies)
-*.{{SITES_DOMAIN}} {
+https:// {
 	tls {
 		on_demand
 	}
