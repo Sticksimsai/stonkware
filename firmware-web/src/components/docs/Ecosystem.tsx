@@ -4,13 +4,14 @@
 import { useEffect, useState } from "react";
 import PixelIcon, { type IconName } from "@/components/PixelIcon";
 import { useInView, useReducedMotion } from "@/lib/hooks";
+import { useConfig } from "@/lib/config";
 
 type NodeId = "traders" | "pool" | "treasury" | "agent" | "internet" | "customers" | "firmware";
 const NODES: Record<NodeId, { label: string; icon: IconName; title: string; body: string }> = {
-  traders:   { label: "TRADERS",   icon: "chart",    title: "Traders & holders", body: "Anyone can buy or sell the coin. Every trade pays a 2% fee, so attention on the coin turns into money for the company." },
+  traders:   { label: "TRADERS",   icon: "chart",    title: "Traders & holders", body: "Anyone can buy or sell the coin. Every trade pays a {total} fee, so attention on the coin turns into money for the company." },
   pool:      { label: "$TOKEN",    icon: "coin",     title: "The coin's pool", body: "The coin launches on StonkFun's bonding curve, paired with SOL or a tokenized stock, then graduates to a Raydium pool. The company's treasury is the coin's creator." },
-  firmware:  {  label: "STONKWARE",  icon: "bolt",     title: "Stonkware (the platform)", body: "Takes 0.4% of each trade and 5% of customer revenue, and is repaid at cost for model and browser time. That pays for hosting and running the agents." },
-  treasury:  { label: "TREASURY",  icon: "memory",   title: "Company treasury", body: "A Solana wallet owned by the company. It gets 1.2% of every trade plus 95% of every sale. The agent decides how to spend it." },
+  firmware:  {  label: "STONKWARE",  icon: "bolt",     title: "Stonkware (the platform)", body: "Takes {platform} of each trade and {rev} of customer revenue, and is repaid at cost for model and browser time. That pays for hosting and running the agents." },
+  treasury:  { label: "TREASURY",  icon: "memory",   title: "Company treasury", body: "A Solana wallet owned by the company. It gets {company} of every trade plus {keep} of every sale. The agent decides how to spend it." },
   agent:     { label: "AGENT",     icon: "chat",     title: "The AI agent", body: "The model the creator chose (Claude, GPT, Gemini, Grok…). It wakes up in shifts, reads its books and decides what to do. Nobody approves its moves." },
   internet:  { label: "INTERNET",  icon: "browser",  title: "The open web", body: "The agent uses a real browser to research markets and competitors, and builds and hosts its own website at <ticker>.stonkware.com." },
   customers: { label: "CUSTOMERS", icon: "cart",     title: "Customers", body: "People who buy the agent's offers (a landing page, a report, a logo…). They pay SOL straight into the treasury, and the agent delivers." },
@@ -20,8 +21,8 @@ const LIME = "#4d7cff", CYAN = "#38d9ff", CREAM = "#e8f1ff";
 type Flow = { id: string; from: NodeId; to: NodeId; color: string; label: string; dur: number; n: number; bulge?: number };
 const FLOWS: Flow[] = [
   { id: "trade",   from: "traders",   to: "pool",      color: CREAM, label: "trades",            dur: 2.2, n: 3 },
-  { id: "fees",    from: "pool",      to: "treasury",  color: LIME,  label: "1.2% fees",         dur: 2.2, n: 3 },
-  { id: "cut",     from: "pool",      to: "firmware",  color: LIME,  label: "0.4%",              dur: 1.6, n: 1 },
+  { id: "fees",    from: "pool",      to: "treasury",  color: LIME,  label: "{company} fees",     dur: 2.2, n: 3 },
+  { id: "cut",     from: "pool",      to: "firmware",  color: LIME,  label: "{platform}",        dur: 1.6, n: 1 },
   { id: "compute", from: "treasury",  to: "agent",     color: CYAN,  label: "pays compute",      dur: 2.6, n: 3 },
   { id: "work",    from: "agent",     to: "internet",  color: CYAN,  label: "research · build",  dur: 2.2, n: 3 },
   { id: "sell",    from: "agent",     to: "customers", color: CYAN,  label: "offers · delivery", dur: 2.4, n: 2 },
@@ -69,6 +70,11 @@ const ORDER: NodeId[] = ["traders", "pool", "treasury", "agent", "internet", "cu
 export default function Ecosystem() {
   const [ref, seen] = useInView<HTMLDivElement>(0.25);
   const reduced = useReducedMotion();
+  const cfg = useConfig();
+  const s = cfg?.fees.tradeFeeSplitBps ?? { total: 200, company: 120, firmware: 40, meteora: 40 };
+  const rev = cfg?.fees.platformRevenueBps ?? 500;
+  const vars: Record<string, string> = { total: `${s.total / 100}%`, company: `${s.company / 100}%`, platform: `${s.firmware / 100}%`, rev: `${rev / 100}%`, keep: `${(10000 - rev) / 100}%` };
+  const fill = (t: string) => t.replace(/\{(\w+)\}/g, (m, k: string) => vars[k] ?? m);
   const [active, setActive] = useState<NodeId>("traders");
   const [pinned, setPinned] = useState(false);
 
@@ -97,7 +103,7 @@ export default function Ecosystem() {
             return (
               <g key={f.id} style={{ opacity: on ? 1 : 0.38, transition: "opacity .3s steps(3)" }}>
                 <path id={`f-${tag}-${f.id}`} d={g.d} fill="none" stroke={f.color} strokeOpacity={0.4} strokeWidth={2} className="eco-dash" />
-                <text x={g.lx} y={g.ly} transform={`rotate(${g.ang} ${g.lx} ${g.ly})`} textAnchor="middle" dominantBaseline="middle" className="font-pixel" fontSize={L.font} fill={f.color} style={{ letterSpacing: ".04em" }}>{f.label.toUpperCase()}</text>
+                <text x={g.lx} y={g.ly} transform={`rotate(${g.ang} ${g.lx} ${g.ly})`} textAnchor="middle" dominantBaseline="middle" className="font-pixel" fontSize={L.font} fill={f.color} style={{ letterSpacing: ".04em" }}>{fill(f.label).toUpperCase()}</text>
                 {seen && !reduced && Array.from({ length: f.n }, (_, i) => (
                   <rect key={`${tag}${i}`} x={-3.5} y={-3.5} width={7} height={7} fill={f.color} style={{ filter: `drop-shadow(0 0 4px ${f.color})` }}>
                     <animateMotion dur={`${f.dur}s`} repeatCount="indefinite" begin={`${(i * f.dur) / f.n}s`}>
@@ -140,7 +146,7 @@ export default function Ecosystem() {
         <div className="label">{pinned ? "selected" : "touring"} · {ORDER.indexOf(active) + 1}/{ORDER.length}</div>
         <div key={active} className="page-enter mt-3">
           <div className="flex items-center gap-3"><PixelIcon name={info.icon} size={28} /><h3 className="glow font-display text-xl text-cream">{info.title}</h3></div>
-          <p className="mt-3 text-sm leading-relaxed text-soft">{info.body}</p>
+          <p className="mt-3 text-sm leading-relaxed text-soft">{fill(info.body)}</p>
         </div>
         <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
           {ORDER.map((id) => (
