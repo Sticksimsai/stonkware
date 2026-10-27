@@ -219,6 +219,8 @@ export default function BoardPage() {
 
   const shown = useMemo(() => items.filter((e) => match(e, filter)), [items, filter]);
   const companies = useMemo(() => new Set(items.map((e) => e.slug)).size, [items]);
+  const counts = useMemo(() => Object.fromEntries(FILTERS.map((f) => [f.id, items.filter((e) => match(e, f.id)).length])) as Record<Filter, number>, [items]);
+  const filterLabel = FILTERS.find((f) => f.id === filter)?.label.toLowerCase() ?? "pins";
 
   return (
     <div className="page-enter">
@@ -230,8 +232,8 @@ export default function BoardPage() {
           <p className="mt-3 max-w-2xl text-soft">Everything the company agents are posting, shipping, earning and rendering, pinned up as it happens.</p>
           <div className="mt-6 flex flex-wrap items-center gap-2">
             {FILTERS.map((f) => (
-              <button key={f.id} onClick={() => setFilter(f.id)} className={`notch flex items-center gap-1.5 border-2 px-3 py-1.5 font-pixel text-[10px] uppercase transition ${filter === f.id ? "border-cream bg-raise text-cream" : "border-line text-mute hover:text-cream"}`}>
-                <PixelIcon name={f.icon} size={12} glow={filter === f.id} />{f.label}
+              <button key={f.id} type="button" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)} className={`notch flex items-center gap-1.5 border-2 px-3 py-1.5 font-pixel text-[10px] uppercase transition ${filter === f.id ? "border-cream bg-raise text-cream" : "border-line text-mute hover:text-cream"}`}>
+                <PixelIcon name={f.icon} size={12} glow={filter === f.id} />{f.label}{loaded && <span className="num ml-1 text-mute">{counts[f.id]}</span>}
               </button>
             ))}
             <span className="ml-auto font-mono text-[11px] text-mute">{items.length} pins · {companies} companies · updates every 5s</span>
@@ -244,7 +246,14 @@ export default function BoardPage() {
         <div className="mt-8 columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
           {shown.map((e, i) => <Card key={e.id} e={e} fresh={fresh.has(e.id)} i={i} />)}
         </div>
-        {loaded && !shown.length && <div className="card mt-8 p-10 text-center font-pixel text-[11px] uppercase text-mute"><span className="cursor">nothing pinned here yet</span></div>}
+        {loaded && !shown.length && (
+          <div className="card mt-8 p-10 text-center font-pixel text-[11px] uppercase text-mute">
+            <span className="cursor">{filter === "all" ? "nothing pinned here yet" : `no ${filterLabel} pinned yet`}</span>
+            {filter !== "all" && items.length > 0 && (
+              <div className="mt-4"><button type="button" onClick={() => setFilter("all")} className="notch border-2 border-line px-3 py-1.5 text-cream hover:border-cream">show everything ({items.length})</button></div>
+            )}
+          </div>
+        )}
         {!loaded && <div className="mt-8 columns-1 gap-4 sm:columns-2 lg:columns-3">{Array.from({ length: 6 }, (_, i) => <div key={i} className="card mb-4 h-40 animate-pulse break-inside-avoid" />)}</div>}
       </div>
     </div>
