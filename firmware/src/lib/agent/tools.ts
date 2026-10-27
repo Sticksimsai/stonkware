@@ -55,7 +55,7 @@ export const TOOLS: ToolDef[] = [
 
   { name: "code_tree", description: "STONKWARE CODE (flagship only). List files in Stonkware's own repository (monorepo: firmware/ = backend + agents, firmware-web/ = website).", parameters: obj({ path: s("folder prefix, e.g. firmware-web/src/components") }) },
   { name: "code_read", description: "STONKWARE CODE. Read a file from the repository's main branch, with line numbers.", parameters: obj({ path: s("file path"), start_line: n("optional"), end_line: n("optional (max 600 lines per read)") }, ["path"]) },
-  { name: "code_search", description: "STONKWARE CODE. Search the repository for a word or identifier.", parameters: obj({ query: s("text to find") }, ["query"]) },
+  { name: "code_search", description: "STONKWARE CODE. Search every file in the repository (deployed main) for text, case-insensitive. Returns file:line matches.", parameters: obj({ query: s("text to find") }, ["query"]) },
   { name: "code_propose", description: "STONKWARE CODE. Propose an improvement to Stonkware as a pull request. Each change: { path, content } for a new/rewritten file, { path, edits: [{ find, replace }] } for exact in-place edits (find must match once), or { path, delete: true }. CI runs typecheck, tests and builds. Safe areas (website, docs, your own agent tools/prompts) merge and deploy automatically when checks pass; protected code (money, keys, payments, auth, dependencies, deploy) waits for a human maintainer.", parameters: obj({ title: s("short PR title"), why: s("what it improves, for whom, and how you verified it"), changes: { type: "array", items: obj({ path: s("repo path"), content: s("full new content"), edits: { type: "array", items: obj({ find: s("exact existing text"), replace: s("replacement") }, ["find", "replace"]) }, delete: { type: "boolean" } }, ["path"]) } }, ["title", "why", "changes"]) },
   { name: "code_update", description: "STONKWARE CODE. Push a fix to one of your open pull requests (e.g. after CI failed).", parameters: obj({ pr: n("PR number"), message: s("commit message"), changes: { type: "array", items: obj({ path: s("repo path"), content: s("full content"), edits: { type: "array", items: obj({ find: s("exact text"), replace: s("replacement") }, ["find", "replace"]) }, delete: { type: "boolean" } }, ["path"]) } }, ["pr", "message", "changes"]) },
   { name: "code_prs", description: "STONKWARE CODE. Your proposed changes: status, lane, CI result, and the error output of failing checks so you can fix them.", parameters: obj({}) },
@@ -138,7 +138,10 @@ export async function runTool(ctx: ToolCtx, name: string, a: Record<string, unkn
     case "code_tree": {
       const prefix = str(a.path, 200).replace(/^\/+|\/+$/g, "");
       const files = (await listFiles()).filter((f) => !prefix || f.path === prefix || f.path.startsWith(prefix + "/"));
-      if (!files.length) return "no files under that path";
+      if (!files.length) {
+        const tops = [...new Set((await listFiles()).map((f) => f.path.split("/").slice(0, 3).join("/")))].filter((x) => x.includes("/src")).slice(0, 20);
+        return `no files under that path. Start from one of: ${tops.join(", ")}`;
+      }
       return files.slice(0, 400).map((f) => `${f.path} (${f.size}b)`).join("\n") + (files.length > 400 ? `\n… ${files.length - 400} more, narrow the path` : "");
     }
     case "code_read": {
@@ -151,7 +154,7 @@ export async function runTool(ctx: ToolCtx, name: string, a: Record<string, unkn
     }
     case "code_search": {
       const r = await searchCode(str(a.query, 120));
-      return r.length ? r.map((x) => `${x.path}${x.fragments.length ? `\n    ${x.fragments.join("\n    ").slice(0, 400)}` : ""}`).join("\n") : "no matches (GitHub's index can lag a few minutes behind new commits; try code_tree + code_read)";
+      return r.length ? r.map((x) => `${x.path}${x.fragments.length ? `\n    ${x.fragments.join("\n    ").slice(0, 400)}` : ""}`).join("\n") : "no matches. Try a shorter or different word (searches every file in firmware/ and firmware-web/), or browse with code_tree";
     }
     case "code_propose": {
       const r = await dev.propose(c, { title: str(a.title, 100), why: str(a.why, 4000), changes: (a.changes ?? []) as dev.Change[] });

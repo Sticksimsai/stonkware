@@ -8,7 +8,7 @@ export const githubEnabled = () => !!(process.env.GITHUB_TOKEN && /^[\w.-]+\/[\w
 
 async function gh<T>(path: string, init: RequestInit & { accept?: string } = {}): Promise<T> {
   const { accept, ...rest } = init;
-  const r = await fetch(`${API()}${path}`, {
+  const go = () => fetch(`${API()}${path}`, {
     ...rest,
     headers: {
       Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -19,6 +19,8 @@ async function gh<T>(path: string, init: RequestInit & { accept?: string } = {})
     },
     signal: AbortSignal.timeout(30_000),
   });
+  // one retry on a network blip ("fetch failed"), never on an HTTP error
+  const r = await go().catch(async () => { await new Promise((res) => setTimeout(res, 1500)); return go(); });
   const text = await r.text();
   if (!r.ok) {
     let msg = text.slice(0, 300);
@@ -57,7 +59,43 @@ export async function readFile(path: string, ref = baseBranch()): Promise<string
   }
 }
 
+/**
+ * Search the server's own checkout (the code that's deployed = main, refreshed by auto-update). GitHub's code
+ * search often has no index for new or private repos, so this is the primary search; GitHub is the fallback.
+ */
+export async function searchLocal(q: string, limit = 40): Promise<{ path: string; fragments: string[] }[] | null> {
+  const { existsSync, readdirSync, readFileSync, realpathSync, statSync } = await import("fs");
+  const { join, dirname, relative } = await import("path");
+  let root = realpathSync(process.cwd());
+  for (let i = 0; i < 3 && !existsSync(join(root, ".git")); i++) root = dirname(root);
+  if (!existsSync(join(root, ".git"))) return null;
+  const needle = q.toLowerCase();
+  const out = new Map<string, string[]>();
+  let count = 0;
+  const walk = (dir: string) => {
+    for (const name of readdirSync(dir)) {
+      if (count >= limit) return;
+      if (name === "node_modules" || name === ".next" || name === ".git" || name.startsWith(".env") || name.endsWith(".db")) continue;
+      const full = join(dir, name);
+      const st = statSync(full);
+      if (st.isDirectory()) { walk(full); continue; }
+      if (st.size > 400_000 || !/\.(tsx?|jsx?|mjs|cjs|css|md|json|sh|ya?ml|html|txt)$|^(Caddyfile|Dockerfile)$/.test(name)) continue;
+      const lines = readFileSync(full, "utf8").split("\n");
+      lines.forEach((l, i) => {
+        if (count >= limit || !l.toLowerCase().includes(needle)) return;
+        const rel = relative(root, full);
+        out.set(rel, [...(out.get(rel) ?? []), `${i + 1}: ${l.trim().slice(0, 160)}`]);
+        count++;
+      });
+    }
+  };
+  walk(root);
+  return [...out].map(([path, fragments]) => ({ path, fragments }));
+}
+
 export async function searchCode(q: string) {
+  const local = await searchLocal(q).catch(() => null);
+  if (local) return local;
   const r = await gh<{ items: { path: string; text_matches?: { fragment: string }[] }[] }>(`/search/code?q=${encodeURIComponent(`${q} repo:${repo()}`)}&per_page=20`, { accept: "application/vnd.github.text-match+json" });
   return r.items.map((i) => ({ path: i.path, fragments: (i.text_matches ?? []).map((m) => m.fragment).slice(0, 2) }));
 }
