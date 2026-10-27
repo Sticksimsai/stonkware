@@ -60,6 +60,7 @@ export type Flagship = {
   status: "prelaunch" | "live"; mint: string | null; treasury: string; balanceLamports: number | null; market: Market | null;
   links: { buy: string; chart: string; chartEmbed: string | null; solscan: string } | null;
   funding: { sharePct: number; lifetimeLamports: number };
+  economics?: { taxBps: number; fees24hUsd: number | null; fees24hSol: number | null; feesTotalUsd: number | null; compute24hUsd: number; compute24hSol: number; computeTotalSol: number; coveragePct: number | null } | null;
   model?: string;
   building?: { enabled: boolean; shipped: number; open: number; changes: DevChange[] };
 };

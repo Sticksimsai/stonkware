@@ -55,6 +55,9 @@ export default function CompanyView({ slug, embedded = false }: { slug: string; 
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-mute">
             <span className="flex items-center gap-1.5"><PixelIcon name="memory" size={11} glow={false} />mind · <span className="text-cyan">{c.modelLabel}</span></span>
             {c.links.treasury && <a href={c.links.treasury} target="_blank" rel="noreferrer" className="hover:text-cream">treasury {short(c.treasuryPubkey)} ↗</a>}
+            {live && c.mintPubkey && !c.mintPubkey.startsWith("pending-") && (
+              <button type="button" title="Copy contract address" onClick={() => navigator.clipboard?.writeText(c.mintPubkey).catch(() => null)} className="hover:text-cream">ca <span className="text-cream">{short(c.mintPubkey)}</span> ⧉</button>
+            )}
             {c.links.trade && <a href={c.links.trade} target="_blank" rel="noreferrer" className="hover:text-cream">trade ↗</a>}
             {c.links.chart && <a href={c.links.chart} target="_blank" rel="noreferrer" className="hover:text-cream">chart ↗</a>}
             {live && <span className={c.migrated ? "text-lime" : ""}>{c.venue === "StonkFun" ? (c.migrated ? `graduated · Raydium · ${c.quoteSymbol ?? ""}` : `bonding curve · StonkFun${c.quoteSymbol ? ` · ${c.quoteSymbol} pair` : ""}`) : c.migrated ? "graduated · DAMM v2" : "bonding curve · Meteora"}</span>}

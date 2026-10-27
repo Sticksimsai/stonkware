@@ -47,6 +47,9 @@ export const companies = sqliteTable(
     quoteMint: text("quote_mint"),
     quoteSymbol: text("quote_symbol"),
     launchAt: ts("launch_at"),
+    /** Flagship: running estimate of fees its token's tax has generated (USD), updated hourly from volume. */
+    taxFeesUsd: real("tax_fees_usd"),
+    taxTrackedAt: ts("tax_tracked_at"),
     metadataUri: text("metadata_uri"),
     /** Meteora DBC pool (bonding curve). After graduation the token trades on DAMM v2. */
     poolAddress: text("pool_address"),

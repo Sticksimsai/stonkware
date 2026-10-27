@@ -45,11 +45,11 @@ export async function platformShareTotal(companyId: string) {
 // ───────── market data (any venue) via DexScreener ─────────
 export type Market = {
   priceUsd: number | null; priceSol: number | null; marketCapUsd: number | null; fdvUsd: number | null; liquidityUsd: number | null;
-  volume24hUsd: number | null; change24h: number | null; pairAddress: string; dex: string; url: string; buys24h: number | null; sells24h: number | null;
+  volume24hUsd: number | null; volume1hUsd: number | null; change24h: number | null; pairAddress: string; dex: string; url: string; buys24h: number | null; sells24h: number | null;
 };
 type DsPair = {
   chainId: string; dexId: string; url: string; pairAddress: string; priceUsd?: string; priceNative?: string; fdv?: number; marketCap?: number;
-  liquidity?: { usd?: number }; volume?: { h24?: number }; priceChange?: { h24?: number }; txns?: { h24?: { buys: number; sells: number } }; quoteToken?: { symbol: string };
+  liquidity?: { usd?: number }; volume?: { h24?: number; h1?: number }; priceChange?: { h24?: number }; txns?: { h24?: { buys: number; sells: number } }; quoteToken?: { symbol: string };
 };
 const marketCache = new Map<string, { at: number; m: Market | null }>();
 export async function marketFor(mint: string): Promise<Market | null> {
@@ -63,15 +63,36 @@ export async function marketFor(mint: string): Promise<Market | null> {
     const best = pairs.sort((a, b) => (b.liquidity?.usd ?? 0) - (a.liquidity?.usd ?? 0))[0];
     if (best) {
       const vol = pairs.reduce((s, p) => s + (p.volume?.h24 ?? 0), 0);
+      const vol1h = pairs.reduce((s, p) => s + (p.volume?.h1 ?? 0), 0);
       m = {
         priceUsd: best.priceUsd ? Number(best.priceUsd) : null,
         priceSol: best.quoteToken?.symbol === "SOL" && best.priceNative ? Number(best.priceNative) : null,
         marketCapUsd: best.marketCap ?? null, fdvUsd: best.fdv ?? null, liquidityUsd: best.liquidity?.usd ?? null,
-        volume24hUsd: vol || null, change24h: best.priceChange?.h24 ?? null, pairAddress: best.pairAddress, dex: best.dexId, url: best.url,
+        volume24hUsd: vol || null, volume1hUsd: vol1h || null, change24h: best.priceChange?.h24 ?? null, pairAddress: best.pairAddress, dex: best.dexId, url: best.url,
         buys24h: best.txns?.h24?.buys ?? null, sells24h: best.txns?.h24?.sells ?? null,
       };
     }
   } catch { /* keep null; the page shows "market data loading" */ }
   marketCache.set(mint, { at: Date.now(), m });
   return m;
+}
+
+// ───────── the flagship token's own fee income (transfer tax), estimated from trading volume ─────────
+/** The token's fee rate in bps (e.g. 145 = 1.45% tax on every trade). */
+export const flagshipTaxBps = () => Number(process.env.FLAGSHIP_TAX_BPS || 145);
+
+/**
+ * Scheduler: once an hour, add the last hour's volume × tax to a running "fees generated" total for the live
+ * flagship (seeded with the last 24h on the first run). Estimates in USD from DexScreener volume.
+ */
+export async function trackFlagshipFees() {
+  const f = await getFlagship(true);
+  if (!f || isPrelaunch(f)) return;
+  const last = f.taxTrackedAt?.getTime() ?? 0;
+  if (Date.now() - last < 60 * 60_000) return;
+  const m = await marketFor(f.mintPubkey);
+  if (!m) return;
+  const vol = last ? m.volume1hUsd ?? 0 : m.volume24hUsd ?? 0;
+  const add = (vol * flagshipTaxBps()) / 10_000;
+  await db.update(schema.companies).set({ taxFeesUsd: (f.taxFeesUsd ?? 0) + add, taxTrackedAt: new Date() }).where(eq(schema.companies.id, f.id));
 }

@@ -115,13 +115,25 @@ export function FlagshipHero({ f }: { f: F }) {
                 </ul>
               </div>
             )}
+            {live && f.economics && (
+              <div className="card p-4">
+                <div className="flex items-center gap-2"><PixelIcon name="bolt" size={14} /><span className="label">does it pay for itself?</span></div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  <div><div className="font-pixel text-[9px] uppercase text-mute">fees 24h ({(f.economics.taxBps / 100).toFixed(2)}% tax)</div><div className="num text-lg text-lime">{usd(f.economics.fees24hUsd, 2)}</div></div>
+                  <div><div className="font-pixel text-[9px] uppercase text-mute">compute 24h</div><div className="num text-lg text-cream">{usd(f.economics.compute24hUsd, 2)}</div></div>
+                  <div><div className="font-pixel text-[9px] uppercase text-mute">covered</div><div className={`num text-lg ${f.economics.coveragePct != null && f.economics.coveragePct >= 100 ? "text-lime" : "text-cyan"}`}>{f.economics.coveragePct == null ? "—" : `${f.economics.coveragePct.toLocaleString()}%`}</div></div>
+                </div>
+                <div className="mt-3 h-2 border border-line"><div className="h-full bg-lime shadow-[0_0_8px_rgba(77,124,255,.5)]" style={{ width: `${Math.min(100, f.economics.coveragePct ?? 0)}%` }} /></div>
+                <p className="mt-2 text-[11px] text-mute">Fees are estimated from trading volume × the token&apos;s {(f.economics.taxBps / 100).toFixed(2)}% tax{f.economics.feesTotalUsd != null ? <> · {usd(f.economics.feesTotalUsd, 2)} generated since tracking began</> : null}. Compute is what its agent actually spent.</p>
+              </div>
+            )}
             <div className="card p-4">
-              <div className="flex items-center gap-2"><PixelIcon name="flow" size={14} /><span className="label">funded by firmware</span></div>
+              <div className="flex items-center gap-2"><PixelIcon name="flow" size={14} /><span className="label">funded by stonkware</span></div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div><div className="font-pixel text-[9px] uppercase text-mute">revenue received</div><div className="num text-lg text-lime"><CountUp value={f.funding.lifetimeLamports / 1e9} format={(n) => `${n.toFixed(3)} SOL`} /></div></div>
                 <div><div className="font-pixel text-[9px] uppercase text-mute">treasury now</div><div className="num text-lg text-cream">{f.balanceLamports == null ? "—" : `${(f.balanceLamports / 1e9).toFixed(3)} SOL`}</div></div>
               </div>
-              <p className="mt-2 text-[11px] text-mute">{f.funding.sharePct}% of Stonkware&apos;s cut of every company&apos;s sales and of launchpad trading fees.</p>
+              <p className="mt-2 text-[11px] text-mute">{f.funding.sharePct}% of Stonkware&apos;s cut of every company&apos;s sales and creator fees.</p>
             </div>
           </div>
         </div>
