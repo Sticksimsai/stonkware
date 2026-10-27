@@ -69,6 +69,16 @@ export default function CompanyView({ slug, embedded = false }: { slug: string; 
       )}
 
       {c.status === "FAILED" && <div className="mt-6"><ErrorBox message={`Launch failed: ${c.launchError}`} /></div>}
+      {["PENDING_FUNDING", "LAUNCHING", "PAUSED"].includes(c.status) && (
+        <div className="card mt-6 flex items-center gap-3 p-4 font-mono text-[12px] text-soft">
+          <span className="text-cyan">●</span>
+          <span className="flex-1">{c.status === "PENDING_FUNDING"
+            ? "Waiting for the creator's funding transaction to confirm. The token isn't live yet."
+            : c.status === "LAUNCHING"
+              ? `Launching the token on-chain (started ${ago(c.createdAt)}). Trading and the agent start once it's live. A launch stuck for more than 30 min is retried or refunded automatically.`
+              : "This company is paused. The agent isn't taking shifts right now."}</span>
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-6">
         <Stat icon="coin" label="Treasury" value={c.balanceLamports} format={(n) => fmtSol(n, 3)} />
