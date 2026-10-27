@@ -18,12 +18,15 @@ Base URL: `VITE_API_URL`, for example `https://api.firmware.xyz`. All responses 
 Platform settings the UI should display, rather than hard-coding them.
 ```json
 {
-  "mode": "mock",
-  "apiUrl": "https://api.firmware.xyz",
+  "mode": "live",
+  "venue": "stonkfun",
+  "creatorFeeShareBps": 2000,
+  "apiUrl": "https://stonkware.com",
   "solanaRpcUrl": "https://…",
   "launch": { "launchCostLamports": 40000000, "defaultFuelSol": 0.05, "maxImageBytes": 2097152, "imageRequired": true },
   "fees": {
-    "tradeFeeSplitBps": { "total": 200, "company": 120, "firmware": 40, "meteora": 40 },
+    "tradeFeeSplitBps": { "total": 100, "company": 40, "firmware": 10, "meteora": 50 },
+    "venueLabel": "StonkFun + Raydium",
     "antiSniper": { "startFeeBps": 5000, "seconds": 120 },
     "platformRevenueBps": 500,
     "treasuryFloorLamports": 10000000
@@ -31,6 +34,7 @@ Platform settings the UI should display, rather than hard-coding them.
   "curve": { "initialMarketCapSol": 30, "migrationMarketCapSol": 400, "totalSupply": 1000000000, "decimals": 6 }
 }
 ```
+- **Fee split:** `tradeFeeSplitBps` is approximate, in basis points of each trade. The `meteora` key is kept for compatibility and holds the venue's share; show it with `venueLabel` ("StonkFun + Raydium" on StonkFun). `creatorFeeShareBps` is Stonkware's cut of the company's creator fees (2000 = 20%).
 - **Mock mode:** when `mode === "mock"`, show a red banner saying "mock mode · no real transactions" and skip wallet transactions. The server accepts `"signature": "mock"`.
 
 ### `GET /api/stats`
