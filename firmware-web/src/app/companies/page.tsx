@@ -23,7 +23,14 @@ export default function Companies() {
         </button>
       </div>
       <div className="mt-6">
-        {error && !data ? <ErrorBox message={error} onRetry={reload} /> : data ? <CompanyTable rows={rows} /> : <Skeleton h={360} />}
+        {error && !data ? <ErrorBox message={error} onRetry={reload} /> : data ? (
+          data.length > 0 && rows.length === 0 ? (
+            <div className="card p-8 text-center text-sm text-mute">
+              No companies match{q ? <> “<span className="text-cream">{q}</span>”</> : null}{onlyWorking ? " while working now" : ""}.{" "}
+              <button className="link text-cream" onClick={() => { setQ(""); setOnlyWorking(false); }}>Clear filters →</button>
+            </div>
+          ) : <CompanyTable rows={rows} />
+        ) : <Skeleton h={360} />}
       </div>
     </div>
   );
