@@ -64,6 +64,6 @@ export async function companyPage(slug: string) {
     db.select({ n: sql<number>`count(*)` }).from(S.orders).where(and(eq(S.orders.companyId, c.id), eq(S.orders.status, "DELIVERED"))),
   ]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { treasurySecretEnc, mintSecretEnc, image, ...pub } = c;
+  const { treasurySecretEnc, mintSecretEnc, hlSecretEnc, hlAgentSecretEnc, image, ...pub } = c;
   return { company: { ...pub, hasImage: !!image }, offers, feed, ledger, runs, files, delivered: delivered[0].n };
 }

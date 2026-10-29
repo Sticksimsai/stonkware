@@ -61,6 +61,14 @@ export const companies = sqliteTable(
     requiredLamports: integer("required_lamports").notNull().default(0),
     fundingSig: text("funding_sig").unique(),
 
+    /** Hyperliquid account (same address on HyperCore and HyperEVM). Only src/lib/hl/signer.ts may decrypt the keys. */
+    hlAddress: text("hl_address"),
+    hlSecretEnc: text("hl_secret_enc"),
+    /** API wallet approved by hlAddress: it can place orders but can never withdraw or transfer. */
+    hlAgentAddress: text("hl_agent_address"),
+    hlAgentSecretEnc: text("hl_agent_secret_enc"),
+    hlAgentApprovedAt: ts("hl_agent_approved_at"),
+
     lifetimeFees: integer("lifetime_fees").notNull().default(0),
     lifetimeRevenue: integer("lifetime_revenue").notNull().default(0),
     lifetimeCompute: integer("lifetime_compute").notNull().default(0),

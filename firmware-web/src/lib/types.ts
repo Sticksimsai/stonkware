@@ -33,6 +33,8 @@ export type PackageInfo = { id: string; name: string; title: string; description
 export type ConnectRequest = { platform: "telegram" | "discord"; why: string; at: string };
 export type LedgerRow = { id: string; kind: string; lamports: number; tokens: string | null; counterparty: string | null; sig: string | null; memo: string; createdAt: string };
 export type Shift = { id: string; status: string; steps: number; costLamports: number; summary: string | null; startedAt: string };
+export type HyperliquidBalance = { usd: number; spotUsdc: number; perpValue: number; withdrawable: number; spot: { coin: string; total: number }[] };
+export type HyperliquidInfo = { network: "testnet" | "mainnet"; address: string; agentApproved: boolean; balance: HyperliquidBalance | null; explorer: string };
 export type CompanyDetail = {
   company: {
     id: string; slug: string; name: string; ticker: string; aim: string; tagline: string; twitter: string | null; model: string; modelLabel: string;
@@ -40,6 +42,8 @@ export type CompanyDetail = {
     lifetimeFees: number; lifetimeRevenue: number; lifetimeCompute: number; lifetimeSpent: number; tokensBurned: string;
     sleepingUntil: string | null; lastRunAt: string | null; createdAt: string; balanceLamports: number | null;
     imageUrl: string | null; websiteUrl: string | null; links: { trade: string | null; chart: string | null; treasury: string | null };
+    /** Missing on older backends; null when the company has no Hyperliquid account yet. */
+    hyperliquid?: HyperliquidInfo | null;
   };
   offers: Offer[]; feed: FeedItem[]; ledger: LedgerRow[]; shifts: Shift[]; websiteFiles: string[]; ordersDelivered: number; media?: MediaItem[];
   bots?: BotInfo[]; packages?: PackageInfo[]; connectRequests?: ConnectRequest[];

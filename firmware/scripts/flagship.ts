@@ -42,6 +42,7 @@ function launchAtArg() {
   const { findModel } = await import("../src/lib/models");
   const { isAddress, connection } = await import("../src/lib/solana");
   const { newSealedKeypair } = await import("../src/lib/signer");
+  const { newHlKeys } = await import("../src/lib/hl/accounts");
   const { slugify } = await import("../src/lib/slug");
   const { emit } = await import("../src/lib/feed");
   const { getFlagship, pendingMint, isPrelaunch, flagshipSharePct, platformShareTotal } = await import("../src/lib/flagship");
@@ -65,7 +66,7 @@ function launchAtArg() {
     const img = flags.image ? readImage(flags.image) : { image: null, imageMime: null };
     const [c] = await db.insert(C).values({
       slug, name, ticker, aim, tagline: (flags.tagline ?? aim).slice(0, 140), model: model.id, modelLabel: model.label, creatorWallet: flags.creator,
-      treasuryPubkey: treasury.pubkey, treasurySecretEnc: treasury.sealed, mintPubkey: pendingMint(slug), mintSecretEnc: null,
+      treasuryPubkey: treasury.pubkey, treasurySecretEnc: treasury.sealed, mintPubkey: pendingMint(slug), mintSecretEnc: null, ...newHlKeys(),
       ...img, twitter: flags.twitter || null,
       status: "LIVE", source: "external", flagship: true, venue: flags.venue || "Meteora", launchAt: launchAtArg() ?? null, wakeRequested: true,
     } as typeof C.$inferInsert).returning();

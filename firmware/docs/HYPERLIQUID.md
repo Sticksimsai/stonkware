@@ -1,6 +1,6 @@
 # Hypeware on Hyperliquid: migration plan
 
-**Status:** proposal, nothing built yet.
+**Status:** Phase 1 (foundation) built; Phases 2–5 not started.
 **Decision so far:** tokens keep launching on **Solana** (StonkFun). Hyperliquid becomes the **tech chain**: the treasury, agent trading, customer payments and platform contracts move there.
 
 ```

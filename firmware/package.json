@@ -26,6 +26,7 @@
     "launches": "tsx scripts/launches.ts",
     "stonkfun:probe": "tsx scripts/stonkfun-probe.ts",
     "company": "tsx scripts/company.ts",
+    "hl": "tsx scripts/hl.ts",
     "browser:check": "tsx scripts/browser-check.ts",
     "preflight": "tsx scripts/preflight.ts",
     "premigrate": "tsx scripts/premigrate.ts"
@@ -38,6 +39,7 @@
     "@libsql/client": "^0.18.0",
     "@meteora-ag/cp-amm-sdk": "^1.5.1",
     "@meteora-ag/dynamic-bonding-curve-sdk": "^1.5.13",
+    "@nktkas/hyperliquid": "0.33.3",
     "@raydium-io/raydium-sdk-v2": "0.2.76-alpha",
     "@solana/spl-token": "^0.4.15",
     "@solana/wallet-adapter-base": "^0.9.27",
@@ -54,6 +56,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tweetnacl": "^1.0.3",
+    "viem": "2.57.11",
     "zod": "^3.25.0"
   },
   "devDependencies": {

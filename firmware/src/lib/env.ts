@@ -68,9 +68,21 @@ export const env = {
   // Costs the platform fronts and bills back to each treasury
   solUsdFallback: num("SOL_USD", 150),
   browserUsdPerMin: num("BROWSER_USD_PER_MIN", 0.002),
+
+  // Hyperliquid (the tech chain: USDC treasury, agent trading, payments). Tokens still launch on Solana.
+  /** "testnet" or "mainnet". Separate from FIRMWARE_MODE so live Solana launches can run against the Hyperliquid testnet. */
+  hlNetwork: (str("HL_NETWORK", "testnet") === "mainnet" ? "mainnet" : "testnet") as "testnet" | "mainnet",
+  /** Optional API URL override (e.g. a private node). Default: Hyperliquid's public API for HL_NETWORK. */
+  hlApiUrl: str("HL_API_URL"),
+  /** Hard cap (USD) on any single transfer out of a company's Hyperliquid account. Unset = no cap. */
+  hlMaxTransferUsd: num("HL_MAX_TRANSFER_USD", Infinity),
 };
 
 export const isLive = () => env.mode === "live";
+
+/** Hyperliquid explorer link for an address on the configured network. */
+export const hlExplorer = (address: string) =>
+  `https://app.hyperliquid${env.hlNetwork === "testnet" ? "-testnet" : ""}.xyz/explorer/address/${address}`;
 
 /** Solscan link for a tx or account on the configured cluster. */
 export const explorer = (kind: "tx" | "account" | "token", id: string) =>
