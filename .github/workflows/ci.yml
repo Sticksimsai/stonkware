@@ -45,3 +45,14 @@ jobs:
         run: npx tsc --noEmit
       - name: build
         run: npm run build
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults: { run: { working-directory: contracts } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: build
+        run: forge build --sizes
+      - name: tests
+        run: forge test -vv

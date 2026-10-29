@@ -105,6 +105,12 @@ export const env = {
   hyperEvmRpc: str("HYPEREVM_RPC_URL"),
   /** "off" hides SOL checkout (once Hyperliquid payments are on). */
   solCheckout: str("SOL_CHECKOUT", "on") !== "off",
+  /** FeeSplitter contract on HyperEVM (contracts/). Set it to route the flagship's share through the contract. */
+  feeSplitter: str("FEE_SPLITTER_ADDRESS"),
+  /** PLATFORM_HL_WALLET's private key, sealed with VAULT_KEY (npm run hl -- seal-platform-key). Needed to distribute. */
+  platformHlKeySealed: str("PLATFORM_HL_KEY_SEALED"),
+  /** Distribute once the platform wallet holds at least this much USDC on HyperCore. */
+  feeDistributeMinUsd: num("FEE_DISTRIBUTE_MIN_USD", 100),
 };
 
 export const isLive = () => env.mode === "live";

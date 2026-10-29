@@ -473,3 +473,34 @@ export const hlTradingDays = sqliteTable(
   },
   (t) => ({ pk: uniqueIndex("hl_trading_days_pk").on(t.companyId, t.day) }),
 );
+
+/** Platform revenue passed through the FeeSplitter contract on HyperEVM (public split: flagship share + platform). */
+export const feeDistributions = sqliteTable("fee_distributions", {
+  id: text("id").primaryKey().$defaultFn(createId),
+  /** TO_EVM (USDC moving HyperCore → platform's HyperEVM address) → DISTRIBUTED | STUCK | FAILED */
+  state: text("state").notNull().default("TO_EVM"),
+  /** USDC amount, 6-decimal units as a string */
+  units: text("units").notNull(),
+  /** bytes32 ref passed to distribute() (links the on-chain event to this row) */
+  ref: text("ref").notNull(),
+  coreRef: text("core_ref"),
+  transferTx: text("transfer_tx"),
+  distributeTx: text("distribute_tx"),
+  toFlagship: text("to_flagship"),
+  toPlatform: text("to_platform"),
+  error: text("error"),
+  createdAt: ts("created_at").notNull().default(now()),
+  doneAt: ts("done_at"),
+});
+
+/** Platform-share USDC sent to the platform wallet from Hyperliquid payments, waiting to go through the FeeSplitter.
+ *  Only these amounts are distributed (compute repayments in the same wallet are not revenue). */
+export const platformRevenue = sqliteTable("platform_revenue", {
+  id: text("id").primaryKey().$defaultFn(createId),
+  companyId: text("company_id").notNull(),
+  orderId: text("order_id"),
+  /** USDC, 6-decimal units as a string */
+  units: text("units").notNull(),
+  distributionId: text("distribution_id"),
+  createdAt: ts("created_at").notNull().default(now()),
+});
