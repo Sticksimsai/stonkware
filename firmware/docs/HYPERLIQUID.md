@@ -1,6 +1,6 @@
 # Hypeware on Hyperliquid: migration plan
 
-**Status:** Phases 1–4 built (bridge behind `HL_BRIDGE`, trading behind `HL_TRADING`, payments behind `HL_PAYMENTS`); Phase 5 not started.
+**Status:** All five phases built. Each one is off until configured: bridge `HL_BRIDGE`, trading `HL_TRADING`, payments `HL_PAYMENTS`, FeeSplitter `FEE_SPLITTER_ADDRESS`. The contract is not deployed yet; it needs an audit before mainnet.
 **Decision so far:** tokens keep launching on **Solana** (StonkFun). Hyperliquid becomes the **tech chain**: the treasury, agent trading, customer payments and platform contracts move there.
 
 ```
@@ -91,6 +91,13 @@ Each phase is its own PR, works in `FIRMWARE_MODE="mock"`, and runs on the **Hyp
 - The frontend `BuyOffer` gets an EVM wallet connect. SOL checkout stays during the transition, behind a flag.
 
 ### Phase 5: Platform contracts on HyperEVM
+
+> **Built** (`contracts/`, see its README). Notes:
+> - HyperCore → HyperEVM transfers always credit the **sender's own** EVM address, so companies can't pay the contract directly. The platform wallet collects the cut on HyperCore, and a job moves exactly the recorded amount to HyperEVM, hands it to the contract and calls `distribute`.
+> - The contract pays the flagship back into its HyperCore account with `depositFor`. HyperCore USDC is linked to Circle's CoreDepositWallet (checked in `spotMeta`), so USDC moved to HyperEVM is native USDC.
+> - Only platform-share revenue (`platform_revenue` rows) is distributed, never compute repayments.
+> - With the splitter on, HYPE payments are sold for USDC first so the share can go through the contract. If that sale can't fill, the flagship is paid directly as before.
+> - No `Receipts` registry: `Distributed(ref, …)` events are the public record, and `ref` links each one to a `fee_distributions` row.
 - `contracts/` (Foundry): `FeeSplitter` takes platform revenue and pays out `FLAGSHIP_SHARE_PCT` to the flagship treasury and the rest to the platform. It's owner-configurable with a timelock on changes. An optional `Receipts` registry logs revenue events for public proof.
 - Deploy to the HyperEVM testnet first. **External audit before mainnet**, because these contracts hold platform money.
 - `flagship.ts` / `creditFlagship` read on-chain balances instead of DB-only credit.

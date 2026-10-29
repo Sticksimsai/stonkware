@@ -2,11 +2,13 @@
 // Every master-key action passes checkHlIntent first. Orders, leverage and cancels are signed with the API wallet only.
 import { randomBytes } from "crypto";
 import { ExchangeClient } from "@nktkas/hyperliquid";
-import { bytesToHex, hexToBytes } from "viem";
+import { bytesToHex, createPublicClient, createWalletClient, defineChain, hexToBytes, http, parseAbi, parseEventLogs } from "viem";
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from "viem/accounts";
 import { env, isLive } from "../env";
 import { open, seal } from "../vault";
 import { transport } from "./client";
+import { evmConfig } from "./payments";
+import { tokenWire } from "./spot";
 import { checkConvert, checkHlIntent, checkTrade, HlRefusal, usdString, type ConvertIntent, type HlIntent, type TradeIntent } from "./policy";
 
 /** A fresh EVM key; only the address and the sealed secret leave this function. */
@@ -132,4 +134,60 @@ export async function hlTrade(c: HlAgentAccount, t: TradeIntent): Promise<TradeR
     if (/could not immediately match/i.test(m)) return { status: "none", reason: "no liquidity within your price" };
     throw e;
   }
+}
+
+// ───────────────────────────── platform key (FeeSplitter distributions only) ─────────────────────────────
+
+/** HyperCore → HyperEVM system address for USDC (token index 0). Credits the sender's own EVM address. */
+export const USDC_SYSTEM_ADDRESS = "0x2000000000000000000000000000000000000000";
+
+/** Seal the platform wallet's private key for PLATFORM_HL_KEY_SEALED. Checks it matches PLATFORM_HL_WALLET. */
+export function sealPlatformKey(privateKey: string): { address: string; sealed: string } {
+  if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey)) throw new HlRefusal("private key must be 0x + 64 hex characters");
+  const address = privateKeyToAccount(privateKey as `0x${string}`).address;
+  if (env.platformHlWallet && address.toLowerCase() !== env.platformHlWallet.toLowerCase()) throw new HlRefusal(`key is for ${address}, not PLATFORM_HL_WALLET`);
+  return { address, sealed: seal(hexToBytes(privateKey as `0x${string}`)) };
+}
+
+function platformAccount(): PrivateKeyAccount {
+  if (!env.platformHlKeySealed || !env.platformHlWallet) throw new HlRefusal("platform Hyperliquid key not configured");
+  return unseal(env.platformHlKeySealed, env.platformHlWallet);
+}
+
+/** USDC on HyperEVM has 6 decimals and HyperCore 8: anything finer is burned on the way, so only 6-decimal amounts. */
+export const isEvmUsdcAmount = (a: string) => /^\d+(\.\d{1,6})?$/.test(a) && Number(a) > 0;
+
+/** Platform: move USDC from its HyperCore spot balance to its own HyperEVM address (the only destination allowed). */
+export async function platformUsdcToEvm(amount: string): Promise<string> {
+  if (!isEvmUsdcAmount(amount)) throw new HlRefusal("amount must be positive with at most 6 decimals");
+  if (!isLive()) return mockId();
+  const exchange = new ExchangeClient({ transport: transport(), wallet: platformAccount() });
+  await exchange.spotSend({ destination: USDC_SYSTEM_ADDRESS, token: tokenWire("USDC"), amount });
+  return `hl:usdc-to-evm:${Date.now()}`;
+}
+
+const splitterAbi = parseAbi([
+  "function distribute(bytes32 ref) returns (uint256 toFlagship, uint256 toPlatform)",
+  "event Distributed(bytes32 indexed ref, uint256 amount, uint256 toFlagship, uint256 toPlatform)",
+]);
+const usdcAbi = parseAbi(["function transfer(address to, uint256 amount) returns (bool)"]);
+
+/** Platform: hand `units` USDC to the FeeSplitter and run distribute(ref). Fixed contract calls only. */
+export async function platformDistribute(units: bigint, ref: `0x${string}`): Promise<{ transferTx: string; distributeTx: string; toFlagship: bigint; toPlatform: bigint }> {
+  if (!env.feeSplitter) throw new HlRefusal("FEE_SPLITTER_ADDRESS not set");
+  if (units <= 0n) throw new HlRefusal("nothing to distribute");
+  if (!isLive()) return { transferTx: mockId(), distributeTx: mockId(), toFlagship: units / 2n, toPlatform: units - units / 2n };
+  const n = evmConfig();
+  const chain = defineChain({ id: n.chainId, name: "HyperEVM", nativeCurrency: { name: "HYPE", symbol: "HYPE", decimals: 18 }, rpcUrls: { default: { http: [env.hyperEvmRpc || n.rpc] } } });
+  const pub = createPublicClient({ chain, transport: http() });
+  const wallet = createWalletClient({ account: platformAccount(), chain, transport: http() });
+  const splitter = env.feeSplitter as `0x${string}`;
+  const transferTx = await wallet.writeContract({ address: n.usdc as `0x${string}`, abi: usdcAbi, functionName: "transfer", args: [splitter, units] });
+  if ((await pub.waitForTransactionReceipt({ hash: transferTx })).status !== "success") throw new Error("USDC transfer to the FeeSplitter failed");
+  const distributeTx = await wallet.writeContract({ address: splitter, abi: splitterAbi, functionName: "distribute", args: [ref] });
+  const r = await pub.waitForTransactionReceipt({ hash: distributeTx });
+  if (r.status !== "success") throw new Error("FeeSplitter.distribute failed");
+  const ev = parseEventLogs({ abi: splitterAbi, logs: r.logs, eventName: "Distributed" }).find((l) => l.address.toLowerCase() === splitter.toLowerCase());
+  if (!ev) throw new Error("no Distributed event in the receipt");
+  return { transferTx, distributeTx, toFlagship: ev.args.toFlagship, toPlatform: ev.args.toPlatform };
 }

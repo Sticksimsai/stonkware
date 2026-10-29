@@ -8,6 +8,7 @@ import { solUsd } from "@/lib/price";
 import { stonkfunTokenUrl } from "@/lib/stonkfun";
 import { treasuryBalance } from "@/lib/treasury";
 import { listChanges, publicChange, selfdevEnabled } from "@/lib/selfdev";
+import { splitterStats } from "@/lib/hl/fee-splitter";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,11 +17,12 @@ export const GET = handle(async () => {
   const f = await getFlagship();
   if (!f) return fail(404, "no flagship yet");
   const pre = isPrelaunch(f);
-  const [market, shared, balance, changes] = await Promise.all([
+  const [market, shared, balance, changes, onchain] = await Promise.all([
     pre ? Promise.resolve(null) : marketFor(f.mintPubkey),
     platformShareTotal(f.id),
     treasuryBalance(f).catch(() => null),
     listChanges(f.id, 30),
+    splitterStats(),
   ]);
   const mint = pre ? null : f.mintPubkey;
   // self-sufficiency: fees its token generates (tax × volume) vs. what its agent spends on compute
@@ -47,6 +49,8 @@ export const GET = handle(async () => {
     mint,
     treasury: f.treasuryPubkey,
     balanceLamports: balance,
+    /** FeeSplitter on HyperEVM: public totals of platform revenue split and paid to the flagship (null if not deployed) */
+    feeSplitter: onchain,
     market,
     economics,
     links: mint

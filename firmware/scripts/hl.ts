@@ -3,6 +3,8 @@
 //   npm run hl -- backfill               give every company without one a Hyperliquid account (keys only, no funds move)
 //   npm run hl -- approve <slug|ticker>  approve the company's API wallet now (its account must have received funds)
 //   npm run hl -- bridges [all]          SOL moving between Solana and Hyperliquid (default: only unfinished or problem ones)
+//   PLATFORM_HL_PRIVATE_KEY=0x… npm run hl -- seal-platform-key   prints PLATFORM_HL_KEY_SEALED for the FeeSplitter job
+//   npm run hl -- distributions          platform revenue passed through the FeeSplitter
 // The scheduler also does backfill + approval automatically; this is for checking and forcing it.
 import "./_env";
 
@@ -57,6 +59,24 @@ import "./_env";
     }
     process.exit(0);
   }
-  console.log("usage: npm run hl -- status | backfill | approve <slug|ticker> | bridges [all]");
+  if (cmd === "seal-platform-key") {
+    const pk = process.env.PLATFORM_HL_PRIVATE_KEY ?? "";
+    const { sealPlatformKey } = await import("../src/lib/hl/signer");
+    const r = sealPlatformKey(pk.trim());
+    console.log(`# ${r.address}\nPLATFORM_HL_KEY_SEALED="${r.sealed}"`);
+    console.log("Put this in .env, then remove PLATFORM_HL_PRIVATE_KEY from your shell/history.");
+    process.exit(0);
+  }
+  if (cmd === "distributions") {
+    const D = schema.feeDistributions;
+    const rows = await db.select().from(D).orderBy(desc(D.createdAt)).limit(50);
+    if (!rows.length) console.log("no distributions yet");
+    for (const d of rows) {
+      const usd = (x: string | null) => (x ? `$${(Number(x) / 1e6).toFixed(2)}` : "-");
+      console.log(`${d.createdAt.toISOString().slice(0, 16)} ${d.state.padEnd(12)} ${usd(d.units).padStart(10)} → flagship ${usd(d.toFlagship)} · platform ${usd(d.toPlatform)} ${d.distributeTx ?? ""} ${d.error ?? ""}`);
+    }
+    process.exit(0);
+  }
+  console.log("usage: npm run hl -- status | backfill | approve <slug|ticker> | bridges [all] | seal-platform-key | distributions");
   process.exit(1);
 })().catch((e) => { console.error((e as Error).message); process.exit(1); });
