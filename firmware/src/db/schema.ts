@@ -116,6 +116,8 @@ export const offers = sqliteTable("offers", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   priceLamports: integer("price_lamports").notNull(),
+  /** Price in USD (set for offers created with a USD price). SOL checkout converts it at the current SOL price. */
+  priceUsd: real("price_usd"),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
   /** service (agent delivers) | download (auto-delivers a package) | merch (Printful print-on-demand) */
   kind: text("kind").notNull().default("service"),
@@ -137,6 +139,14 @@ export const orders = sqliteTable(
     /** AWAITING_PAYMENT | PAID | DELIVERED */
     status: text("status").notNull().default("AWAITING_PAYMENT"),
     paySig: text("pay_sig").unique(),
+    /** sol | hl-core (transfer from a Hyperliquid account) | hl-evm (USDC from HyperEVM via Circle's depositFor) */
+    payMethod: text("pay_method").notNull().default("sol"),
+    /** SOL | USDC | HYPE */
+    payAsset: text("pay_asset").notNull().default("SOL"),
+    /** Quoted amount in payAsset units (decimal string), locked until quoteExpiresAt */
+    payAmount: text("pay_amount"),
+    priceUsd: real("price_usd"),
+    quoteExpiresAt: ts("quote_expires_at"),
     deliverable: text("deliverable"),
     /** merch: chosen Printful variant */
     variantId: integer("variant_id"),

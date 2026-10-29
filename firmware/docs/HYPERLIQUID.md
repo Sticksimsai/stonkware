@@ -1,6 +1,6 @@
 # Hypeware on Hyperliquid: migration plan
 
-**Status:** Phases 1 (foundation), 2 (treasury bridge, behind `HL_BRIDGE`) and 3 (agent trading, behind `HL_TRADING`) built; Phases 4–5 not started.
+**Status:** Phases 1–4 built (bridge behind `HL_BRIDGE`, trading behind `HL_TRADING`, payments behind `HL_PAYMENTS`); Phase 5 not started.
 **Decision so far:** tokens keep launching on **Solana** (StonkFun). Hyperliquid becomes the **tech chain**: the treasury, agent trading, customer payments and platform contracts move there.
 
 ```
@@ -74,6 +74,17 @@ Each phase is its own PR, works in `FIRMWARE_MODE="mock"`, and runs on the **Hyp
 - Every order and fill goes into the feed and ledger, so it shows up live.
 
 ### Phase 4: Customer payments in USDC / HYPE
+
+> **Built**, with one change from the plan below. Plain HYPE sent on HyperEVM would land on the company's EVM side and need a second move, so buyers pay one of two ways, both landing **directly in the company's HyperCore spot balance**:
+> - **From a Hyperliquid account** (`hl-core`): a signed `spotSend` of USDC or HYPE. No gas. Verified from the company's ledger (`userNonFundingLedgerUpdates`).
+> - **USDC from HyperEVM** (`hl-evm`): `approve` + Circle's `CoreDepositWallet.depositFor(company, amount, spot)`. The company needs no gas or bridging. Verified from the transaction receipt and calldata.
+>
+> Other notes:
+> - Contract addresses were checked on-chain on 2026-10-30 (code present, USDC 6 decimals, `CoreDepositWallet.token()` = USDC, `depositFor` in the implementation).
+> - HYPE is quoted at the HYPE/USDC mid and the quote is locked for 15 min. The platform's 5% (with the flagship's share) is paid in the asset received, then leftover HYPE is sold for USDC (IOC, slippage-capped).
+> - Each payment hash can only be used once (`orders.pay_sig` is unique).
+> - SOL checkout stays (`SOL_CHECKOUT`). USD-priced offers are converted at the current SOL price.
+> - The public HyperEVM RPC rate-limits quickly, so set `HYPEREVM_RPC_URL` in production.
 - `create_offer` prices in USD. Checkout pays to the company's EVM address on HyperEVM, in USDC (ERC-20) or HYPE (native, priced at the current mid).
 - `orders/[id]/confirm` verifies from a HyperEVM receipt (Transfer log or value, confirmations, recipient, amount). This replaces `verifyDeposit`.
 - Received funds move to HyperCore (USDC via Circle's `CoreDepositWallet`, HYPE via `0x2222…2222`) so the agent can use them.

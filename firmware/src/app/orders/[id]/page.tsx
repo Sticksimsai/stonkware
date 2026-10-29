@@ -20,7 +20,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
       <h1 className="mt-3 text-2xl font-display font-bold text-cream glow">{s?.title}</h1>
       <div className="mt-2 flex flex-wrap gap-4 font-mono text-[11px] text-mute">
         <span>order {short(o.id, 6)}</span>
-        <span>{(o.priceLamports / 1e9).toLocaleString()} SOL</span>
+        <span>{o.payMethod === "sol" ? `${(o.priceLamports / 1e9).toLocaleString()} SOL` : `${o.payAmount} ${o.payAsset} on Hyperliquid`}</span>
         <span>buyer {short(o.buyerWallet)}</span>
         <span className="text-cream">{o.status.toLowerCase()}</span>
       </div>

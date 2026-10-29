@@ -3,6 +3,7 @@ import { companyPage } from "@/lib/queries";
 import { stonkfunTokenUrl } from "@/lib/stonkfun";
 import { env, explorer, hlExplorer } from "@/lib/env";
 import { hlBalance } from "@/lib/hl/client";
+import { methodsFor } from "@/lib/hl/payments";
 import { getCompany, treasuryBalance } from "@/lib/treasury";
 import { fail, handle, ok } from "@/lib/http";
 import { siteUrlFor } from "@/lib/sites";
@@ -41,7 +42,7 @@ export const GET = handle(async (_req: Request, { params }: { params: { slug: st
         : { trade: null, chart: null, treasury: explorer("account", c.treasuryPubkey) },
     },
     offers: d.offers.map((o) => ({
-      id: o.id, title: o.title, description: o.description, priceLamports: o.priceLamports, active: o.active, createdAt: o.createdAt, kind: o.kind,
+      id: o.id, title: o.title, description: o.description, priceLamports: o.priceLamports, priceUsd: o.priceUsd, active: o.active, createdAt: o.createdAt, kind: o.kind,
       merch: o.kind === "merch" ? publicMerchMeta(o.meta) : null,
     })),
     feed: d.feed,
@@ -56,6 +57,8 @@ export const GET = handle(async (_req: Request, { params }: { params: { slug: st
       url: p.visibility === "public" ? downloadUrl(p) : null, paid: p.visibility !== "public",
     })),
     connectRequests: JSON.parse(c.connectRequests || "[]"),
+    /** How buyers can pay this company: [{ method: sol | hl-core | hl-evm, asset: SOL | USDC | HYPE }] */
+    payments: methodsFor(c),
     capabilities: { media: higgsfieldEnabled(), merch: merchEnabled(), bots: true, packages: true },
   });
 });

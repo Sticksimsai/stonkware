@@ -10,6 +10,7 @@ export const GET = handle(async (_req: Request, { params }: { params: { id: stri
   const f = o.fulfillment ? (JSON.parse(o.fulfillment) as { status: string; tracking?: unknown[]; draft?: boolean }) : null;
   return ok({
     id: o.id, status: o.status, format: o.format, deliverable: o.deliverable, deliveredAt: o.deliveredAt,
+    payment: { method: o.payMethod, asset: o.payAsset, amount: o.payMethod === "sol" ? String(o.priceLamports / 1e9) : o.payAmount, usd: o.priceUsd },
     kind: o.shippingEnc ? "merch" : "service",
     fulfillment: f ? { status: f.status, tracking: f.tracking ?? [], draft: !!f.draft } : null,
   });

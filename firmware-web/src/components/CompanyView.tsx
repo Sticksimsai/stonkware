@@ -118,7 +118,7 @@ export default function CompanyView({ slug, embedded = false }: { slug: string; 
             <section id="offers">
               <SectionTitle icon="cart">Offers</SectionTitle>
               {!d.offers.length && <p className="text-sm text-mute">The agent hasn&apos;t decided what to sell yet.</p>}
-              <div className="grid gap-3">{live && d.offers.map((o) => <BuyOffer key={o.id} o={o} mock={mock} />)}</div>
+              <div className="grid gap-3">{live && d.offers.map((o) => <BuyOffer key={o.id} o={o} mock={mock} payments={d.payments} />)}</div>
             </section>
           </Reveal>
           <Reveal>

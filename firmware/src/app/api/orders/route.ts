@@ -7,6 +7,10 @@ import { handle, ok, fail } from "@/lib/http";
 import { isAddress } from "@/lib/solana";
 import { env } from "@/lib/env";
 import { sealAddress, type MerchMeta } from "@/lib/merch";
+import { usdToLamports, solUsd } from "@/lib/price";
+import { evmConfig, methodsFor, normalizeEvm, quote, QUOTE_TTL_MS, SPOT_DEX, USDC_DECIMALS } from "@/lib/hl/payments";
+import { isAddress as isEvmAddress } from "viem";
+import { tokenWire } from "@/lib/hl/spot";
 
 export const runtime = "nodejs";
 
@@ -20,11 +24,15 @@ const Body = z.object({
   brief: z.string().trim().max(4000).default(""),
   variantId: z.number().int().optional(),
   shipping: Address.optional(),
+  /** sol (default) | hl-core | hl-evm */
+  method: z.enum(["sol", "hl-core", "hl-evm"]).default("sol"),
+  asset: z.enum(["SOL", "USDC", "HYPE"]).optional(),
 });
 
 export const POST = handle(async (req: Request) => {
   const b = Body.parse(await req.json());
-  if (!isAddress(b.buyerWallet)) return fail(400, "invalid buyer wallet");
+  const hl = b.method !== "sol";
+  if (hl ? !isEvmAddress(b.buyerWallet, { strict: false }) : !isAddress(b.buyerWallet)) return fail(400, "invalid buyer wallet");
   const o = await db.query.offers.findFirst({ where: and(eq(schema.offers.id, b.offerId), eq(schema.offers.active, true)) });
   if (!o) return fail(404, "offer not available");
   const c = await db.query.companies.findFirst({ where: eq(schema.companies.id, o.companyId) });
@@ -37,9 +45,30 @@ export const POST = handle(async (req: Request) => {
     variantId = b.variantId;
     shippingEnc = sealAddress({ ...b.shipping, email: b.shipping.email || undefined });
   } else if (o.kind === "service" && b.brief.length < 5) return fail(400, "describe what you need (at least a few words)");
+  const asset = hl ? (b.method === "hl-evm" ? "USDC" : b.asset === "HYPE" ? "HYPE" : "USDC") : "SOL";
+  if (!methodsFor(c).some((m) => m.method === b.method && m.asset === asset)) return fail(400, `${b.method === "sol" ? "SOL" : `${asset} on Hyperliquid`} isn't accepted here`);
+  const priceUsd = o.priceUsd ?? (o.priceLamports / 1e9) * (await solUsd());
+  // SOL checkout of a USD-priced offer is converted at today's SOL price
+  const lamports = o.priceUsd ? await usdToLamports(o.priceUsd) : o.priceLamports;
   const reference = Keypair.generate().publicKey.toBase58();
+
+  if (!hl) {
+    const [row] = await db.insert(schema.orders).values({
+      companyId: c.id, offerId: o.id, buyerWallet: b.buyerWallet, brief: b.brief || o.title, priceLamports: lamports, priceUsd, reference, variantId, shippingEnc,
+    }).returning({ id: schema.orders.id });
+    return ok({ id: row.id, method: "sol", treasury: c.treasuryPubkey, lamports, reference, mode: env.mode });
+  }
+
+  const q = await quote(asset as "USDC" | "HYPE", priceUsd);
+  const expires = new Date(Date.now() + QUOTE_TTL_MS);
   const [row] = await db.insert(schema.orders).values({
-    companyId: c.id, offerId: o.id, buyerWallet: b.buyerWallet, brief: b.brief || o.title, priceLamports: o.priceLamports, reference, variantId, shippingEnc,
+    companyId: c.id, offerId: o.id, buyerWallet: normalizeEvm(b.buyerWallet), brief: b.brief || o.title, priceLamports: lamports, priceUsd, reference, variantId, shippingEnc,
+    payMethod: b.method, payAsset: asset, payAmount: q.amount, quoteExpiresAt: expires,
   }).returning({ id: schema.orders.id });
-  return ok({ id: row.id, treasury: c.treasuryPubkey, lamports: o.priceLamports, reference, mode: env.mode });
+  const n = evmConfig();
+  return ok({
+    id: row.id, method: b.method, asset, amount: q.amount, usd: Number(priceUsd.toFixed(2)), to: c.hlAddress, expiresAt: expires.toISOString(), network: env.hlNetwork, mode: env.mode,
+    ...(b.method === "hl-core" ? { token: tokenWire(asset as "USDC" | "HYPE") } : {}),
+    ...(b.method === "hl-evm" ? { evm: { chainId: n.chainId, rpc: n.rpc, usdc: n.usdc, coreDepositWallet: n.coreDepositWallet, units: String(BigInt(Math.round(Number(q.amount) * 10 ** USDC_DECIMALS))), destinationDex: SPOT_DEX } } : {}),
+  });
 });

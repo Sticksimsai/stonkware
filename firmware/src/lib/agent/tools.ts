@@ -18,6 +18,7 @@ import { downloadUrl, listPackages, packageFilesList, packageName, publishPackag
 import { createMerchOffer, getProduct, merchEnabled, searchCatalog } from "../merch";
 import * as dev from "../selfdev";
 import { listFiles, readFile, searchCode } from "../selfdev/github";
+import { solUsd } from "../price";
 import { cancelOrder, closePosition, marketsText, placeOrder, positionsText, riskLimits, tradingEnabled } from "../hl/trading";
 
 const S = schema;
@@ -42,7 +43,7 @@ export const TOOLS: ToolDef[] = [
   { name: "generate_video", description: "Create a video clip with AI (Higgsfield: Seedance 2.5 with sound for text-to-video, Kling to animate one of your images via from_image_id). Renders take 1–5 minutes in the background: check list_media for the URL, then embed it with <video src controls playsinline>. Billed per second (~$" + "VIDEO_USD per second).", parameters: obj({ prompt: s("the shot: subject, action, camera movement, mood, style"), seconds: n("4–30 for text-to-video (3–15 when animating an image), default 5"), aspect_ratio: { type: "string", enum: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"] }, from_image_id: s("optional: media id of one of your images to animate") }, ["prompt"]) },
   { name: "list_media", description: "Your generated images and videos with their status and URLs.", parameters: obj({}) },
 
-  { name: "create_offer", description: "Start selling something. Buyers pay SOL into your treasury on your Hypeware storefront. Services: you deliver with deliver_order. If you pass `package`, it's a paid download that is delivered instantly and automatically.", parameters: obj({ title: s("offer name"), description: s("what the buyer gets"), price_sol: n("price in SOL"), package: s("optional: name of a published package to sell as a download") }, ["title", "description", "price_sol"]) },
+  { name: "create_offer", description: "Start selling something on your Hypeware storefront. Price it in USD (price_usd: buyers can pay in USDC or HYPE on Hyperliquid, or SOL at the current rate) or in SOL (price_sol). Services: you deliver with deliver_order. If you pass `package`, it's a paid download that is delivered instantly and automatically.", parameters: obj({ title: s("offer name"), description: s("what the buyer gets"), price_usd: n("price in USD (preferred)"), price_sol: n("price in SOL (if no price_usd)"), package: s("optional: name of a published package to sell as a download") }, ["title", "description"]) },
 
   { name: "write_bot", description: "Write (or rewrite) the code of your Telegram or Discord bot. JavaScript defining `async function onMessage(msg)` that returns the reply: a string, or { text, buttons: [{ text, url }] }, or null for no reply. msg = { platform, text, command, args, user: { id, name, username }, chat: { id, type } } (command is e.g. \"start\" for /start; Discord bots only receive slash commands). Available inside: `await ai(prompt, { system })` → string (an AI reply, billed to your treasury), `await kv.get/set/del/incr/list` (persistent storage for users, points, settings), `company` (name, ticker, website, storefront, page), console.log. No network or npm. The code is checked before saving; test it with test_bot.", parameters: obj({ platform: { type: "string", enum: ["telegram", "discord"] }, code: s("full JavaScript source") }, ["platform", "code"]) },
   { name: "test_bot", description: "Send a test message to your bot code and see its reply (AI calls inside are billed).", parameters: obj({ platform: { type: "string", enum: ["telegram", "discord"] }, text: s("message text, e.g. /start or hello") }, ["platform", "text"]) },
@@ -65,7 +66,7 @@ export const TOOLS: ToolDef[] = [
   { name: "merch_catalog", description: "Search Printful's print-on-demand catalog (t-shirts, hoodies, mugs, posters, stickers, phone cases, hats…).", parameters: obj({ search: s("e.g. t-shirt, hoodie, mug, poster, sticker") }, ["search"]) },
   { name: "merch_product", description: "Variants (size/colour) and production cost (USD) for one catalog product, plus print placements.", parameters: obj({ product_id: n("product id from merch_catalog") }, ["product_id"]) },
   { name: "create_merch_offer", description: "Sell physical merch with your design. Customers pick a variant, pay SOL and enter a shipping address; Hypeware sends the order to Printful automatically and the production + shipping cost is charged to your treasury. Price must cover cost with margin.", parameters: obj({ title: s("product name"), description: s("sales copy"), product_id: n("catalog product id"), variant_ids: { type: "array", items: { type: "number" }, description: "variant ids to offer (e.g. sizes in one colour)" }, design_media_id: s("media id of your design image (generate_image; square, high-contrast works best)"), placement: s("print placement, usually front"), price_sol: n("price in SOL") }, ["title", "description", "product_id", "variant_ids", "design_media_id", "price_sol"]) },
-  { name: "update_offer", description: "Change an offer's price or pause/resume it.", parameters: obj({ offer_id: s("offer id"), price_sol: n("new price"), active: { type: "boolean" } }, ["offer_id"]) },
+  { name: "update_offer", description: "Change an offer's price (USD or SOL) or pause/resume it.", parameters: obj({ offer_id: s("offer id"), price_usd: n("new price in USD"), price_sol: n("new price in SOL"), active: { type: "boolean" } }, ["offer_id"]) },
   { name: "deliver_order", description: "Deliver a paid order to the buyer. Use format html for a page/app, markdown for documents.", parameters: obj({ order_id: s("order id"), content: s("the full deliverable"), format: { type: "string", enum: ["markdown", "html"] } }, ["order_id", "content", "format"]) },
 
   { name: "check_treasury", description: "Current balance, income, spending and recent ledger entries.", parameters: obj({}) },
@@ -350,8 +351,10 @@ export async function runTool(ctx: ToolCtx, name: string, a: Record<string, unkn
 
     // ── commerce ──
     case "create_offer": {
-      const price = Number(a.price_sol);
-      if (!(price >= OFFER_BOUNDS.minSol && price <= OFFER_BOUNDS.maxSol)) throw new Error(`price must be ${OFFER_BOUNDS.minSol}–${OFFER_BOUNDS.maxSol} SOL`);
+      const priceUsd = a.price_usd !== undefined && a.price_usd !== null && a.price_usd !== "" ? Number(a.price_usd) : null;
+      if (priceUsd !== null && !(priceUsd >= OFFER_BOUNDS.minUsd && priceUsd <= OFFER_BOUNDS.maxUsd)) throw new Error(`price must be $${OFFER_BOUNDS.minUsd}–$${OFFER_BOUNDS.maxUsd}`);
+      const price = priceUsd !== null ? priceUsd / (await solUsd()) : Number(a.price_sol);
+      if (priceUsd === null && !(price >= OFFER_BOUNDS.minSol && price <= OFFER_BOUNDS.maxSol)) throw new Error(`give price_usd ($${OFFER_BOUNDS.minUsd}–$${OFFER_BOUNDS.maxUsd}) or price_sol (${OFFER_BOUNDS.minSol}–${OFFER_BOUNDS.maxSol} SOL)`);
       const [{ count }] = await db.select({ count: sql<number>`count(*)` }).from(S.offers).where(and(eq(S.offers.companyId, c.id), eq(S.offers.active, true)));
       if (count >= OFFER_BOUNDS.maxActive) throw new Error("too many active offers");
       let kind = "service", meta: string | null = null;
@@ -360,18 +363,24 @@ export async function runTool(ctx: ToolCtx, name: string, a: Record<string, unkn
         if (!pkg || pkg.version === 0) throw new Error("publish the package first (publish_package)");
         kind = "download"; meta = JSON.stringify({ packageId: pkg.id });
       }
-      const [o] = await db.insert(S.offers).values({ companyId: c.id, title: str(a.title, 100), description: str(a.description, 1000), priceLamports: lamports(price), kind, meta }).returning({ id: S.offers.id });
-      await emit(c.id, "ACTION", `New offer: ${str(a.title, 100)} — ${price} SOL`, str(a.description, 300));
+      const [o] = await db.insert(S.offers).values({ companyId: c.id, title: str(a.title, 100), description: str(a.description, 1000), priceLamports: lamports(price), priceUsd, kind, meta }).returning({ id: S.offers.id });
+      await emit(c.id, "ACTION", `New offer: ${str(a.title, 100)} — ${priceUsd !== null ? `$${priceUsd}` : `${price} SOL`}`, str(a.description, 300));
       return `created offer ${o.id}. Buyers can purchase at ${env.appUrl}/c/${c.slug}#offers`;
     }
     case "update_offer": {
       const o = await db.query.offers.findFirst({ where: and(eq(S.offers.id, str(a.offer_id)), eq(S.offers.companyId, c.id)) });
       if (!o) throw new Error("unknown offer");
       const patch: Partial<typeof S.offers.$inferInsert> = {};
-      if (a.price_sol !== undefined) {
+      if (a.price_usd !== undefined) {
+        const p = Number(a.price_usd);
+        if (!(p >= OFFER_BOUNDS.minUsd && p <= OFFER_BOUNDS.maxUsd)) throw new Error("price out of bounds");
+        patch.priceUsd = p;
+        patch.priceLamports = lamports(p / (await solUsd()));
+      } else if (a.price_sol !== undefined) {
         const p = Number(a.price_sol);
         if (!(p >= OFFER_BOUNDS.minSol && p <= OFFER_BOUNDS.maxSol)) throw new Error("price out of bounds");
         patch.priceLamports = lamports(p);
+        patch.priceUsd = null; // now priced in SOL
       }
       if (typeof a.active === "boolean") patch.active = a.active;
       await db.update(S.offers).set(patch).where(eq(S.offers.id, o.id));

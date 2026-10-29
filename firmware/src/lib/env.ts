@@ -99,6 +99,12 @@ export const env = {
   hlDailyLossPct: num("HL_DAILY_LOSS_PCT", 10),
   /** Optional comma-separated allow-list, e.g. "BTC,ETH,SOL,HYPE/USDC". Empty = every market. */
   hlAllowedMarkets: str("HL_ALLOWED_MARKETS"),
+  /** "on" lets buyers pay for offers in USDC/HYPE on Hyperliquid (from a Hyperliquid account or from HyperEVM). */
+  hlPayments: str("HL_PAYMENTS", "off") === "on",
+  /** Optional HyperEVM RPC override (default: Hyperliquid's public RPC for HL_NETWORK). */
+  hyperEvmRpc: str("HYPEREVM_RPC_URL"),
+  /** "off" hides SOL checkout (once Hyperliquid payments are on). */
+  solCheckout: str("SOL_CHECKOUT", "on") !== "off",
 };
 
 export const isLive = () => env.mode === "live";

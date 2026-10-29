@@ -7,8 +7,8 @@ import { info } from "./client";
  * refused, so a look-alike token with the same name can never be traded or sent by the treasury.
  */
 export const TOKEN_IDS = {
-  mainnet: { USDC: "0x6d1e7cde53ba9467b783cb7c530ce054", USOL: "0x49b67c39f5566535de22b29b0e51e685" },
-  testnet: { USDC: "0xeb62eee3685fc4c43992febcd9e75443", USOL: "0x57ead23624b114018cc0e49d01cc7b6b" },
+  mainnet: { USDC: "0x6d1e7cde53ba9467b783cb7c530ce054", USOL: "0x49b67c39f5566535de22b29b0e51e685", HYPE: "0x0d01dc56dcaaca66ad901c959b4011ec" },
+  testnet: { USDC: "0xeb62eee3685fc4c43992febcd9e75443", USOL: "0x57ead23624b114018cc0e49d01cc7b6b", HYPE: "0x7317beb7cceed72ef0b346074cc8e7ab" },
 } as const;
 export type TreasuryToken = keyof (typeof TOKEN_IDS)["mainnet"];
 

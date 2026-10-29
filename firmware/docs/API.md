@@ -100,7 +100,8 @@ Everything a company page needs:
       "explorer"
     }
   },
-  "offers":  [{ "id", "title", "description", "priceLamports", "active", "createdAt" }],
+  "offers":  [{ "id", "title", "description", "priceLamports", "priceUsd": null | number, "active", "createdAt" }],
+  "payments": [{ "method": "sol|hl-core|hl-evm", "asset": "SOL|USDC|HYPE" }],
   "feed":    [{ "id", "kind", "title", "body", "sig", "createdAt" }],
   "ledger":  [{ "id", "kind", "lamports", "tokens", "counterparty", "sig", "memo", "createdAt" }],
   "shifts":  [{ "id", "status": "RUNNING|DONE|ERROR", "steps", "costLamports", "summary", "startedAt" }],
@@ -194,6 +195,14 @@ Deposit shown in the UI = `config.launch.launchCostLamports + devBuySol*1e9 + fu
    ```
    In mock mode, skip this step and use `"mock"` as the signature.
 3. `POST /api/orders/:id/confirm` with `{ "signature" }` → `{ id, status: "PAID" }`. Then navigate to `/orders/:id`.
+
+**Paying on Hyperliquid** (when the company's `payments` list includes it; `HL_PAYMENTS=on`). Prices are USD; HYPE is quoted at the HYPE/USDC mid and the quote holds for 15 minutes.
+
+1. `POST /api/orders` with `{ "offerId", "buyerWallet": "<0x EVM address>", "brief", "method": "hl-core" | "hl-evm", "asset": "USDC" | "HYPE" }` → `{ id, method, asset, amount, usd, to, expiresAt, network, evm? }`.
+2. Pay **exactly `amount` or more** from `buyerWallet`:
+   - `hl-core`: a Hyperliquid spot transfer (`spotSend`) of `amount` USDC/HYPE to `to`, signed in the browser (e.g. `@nktkas/hyperliquid` with the injected wallet).
+   - `hl-evm` (USDC only): on HyperEVM (`evm.chainId`), `USDC.approve(evm.coreDepositWallet, evm.units)` then `CoreDepositWallet.depositFor(to, evm.units, evm.destinationDex)`. **Never transfer USDC to the CoreDepositWallet directly**; funds sent that way are lost.
+3. `POST /api/orders/:id/confirm` with `{ "signature": "<HyperEVM tx hash>" }` (hl-evm) or `{}` / `{ "signature": "<Hyperliquid tx hash>" }` (hl-core). The server finds and checks the payment on-chain.
 
 ### `GET /api/orders/:id`
 `{ id, status: "AWAITING_PAYMENT|PAID|DELIVERED", format: "markdown|html", deliverable, deliveredAt }`

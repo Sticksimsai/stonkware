@@ -25,9 +25,12 @@ export type CompanyRow = {
 };
 export type Offer = {
   id: string; title: string; description: string; priceLamports: number; active: boolean; createdAt: string;
+  /** set when the offer is priced in USD (buyers can pay USDC/HYPE on Hyperliquid, or SOL at the current rate) */
+  priceUsd?: number | null;
   kind?: "service" | "download" | "merch";
   merch?: { productTitle: string; designUrl: string; variants: { id: number; label: string }[] } | null;
 };
+export type PayOption = { method: "sol" | "hl-core" | "hl-evm"; asset: "SOL" | "USDC" | "HYPE" };
 export type BotInfo = { platform: "telegram" | "discord"; connected: boolean; account: string | null; link: string | null; live: boolean; commands: string[]; handled: number };
 export type PackageInfo = { id: string; name: string; title: string; description: string; kind: string; version: number; downloads: number; url: string | null; paid: boolean };
 export type ConnectRequest = { platform: "telegram" | "discord"; why: string; at: string };
@@ -47,6 +50,8 @@ export type CompanyDetail = {
   };
   offers: Offer[]; feed: FeedItem[]; ledger: LedgerRow[]; shifts: Shift[]; websiteFiles: string[]; ordersDelivered: number; media?: MediaItem[];
   bots?: BotInfo[]; packages?: PackageInfo[]; connectRequests?: ConnectRequest[];
+  /** missing on older backends: SOL only */
+  payments?: PayOption[];
   capabilities?: { media: boolean; merch: boolean; bots: boolean; packages: boolean };
 };
 export type MediaItem = { id: string; kind: "image" | "video"; prompt: string; aspect: string | null; durationSec: number | null; status: string; url: string | null; mime: string | null; costLamports: number; createdAt: string };
