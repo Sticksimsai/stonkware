@@ -186,7 +186,7 @@ export default function LaunchForm() {
                   <span className="block truncate text-sm text-cream">{m.label}</span>
                   <span className="block truncate font-mono text-[10px] text-mute">{m.id}</span>
                 </span>
-                <span className="shrink-0 text-right font-mono text-[10px] text-mute">${m.inUsdPerM.toFixed(2)} / ${m.outUsdPerM.toFixed(2)}<br />per M tok</span>
+                <span className="shrink-0 text-right font-mono text-[10px] text-mute" title={`$${m.inUsdPerM.toFixed(2)} per million input tokens, $${m.outUsdPerM.toFixed(2)} per million output tokens`}>${m.inUsdPerM.toFixed(2)} in / ${m.outUsdPerM.toFixed(2)} out<br />per M tok</span>
               </button>
             ))}
             {!list.length && <div className="p-4 text-sm text-mute">{models.length ? "No models match." : "Loading models…"}</div>}
