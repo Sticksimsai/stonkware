@@ -86,3 +86,19 @@ export function checkHlIntent(intent: HlIntent, ctx: PolicyContext): void {
       throw new HlRefusal(`unknown intent ${(intent as { kind: string }).kind}`);
   }
 }
+
+/**
+ * Treasury conversions (uSOL ⇄ USDC). Signed by the API wallet as immediate-or-cancel orders with a worst price,
+ * so nothing rests on the book and a thin market can't fill far from the reference price.
+ */
+export type ConvertIntent = { coin: "USOL"; side: "buy" | "sell"; size: string; limitPx: string };
+
+const CONVERT_COINS = new Set(["USOL"]);
+
+export function checkConvert(i: ConvertIntent): void {
+  if (!CONVERT_COINS.has(i.coin)) throw new HlRefusal(`conversions only support ${[...CONVERT_COINS].join(", ")}`);
+  if (i.side !== "buy" && i.side !== "sell") throw new HlRefusal("side must be buy or sell");
+  for (const [k, v] of [["size", i.size], ["limitPx", i.limitPx]] as const) {
+    if (!/^\d+(\.\d+)?$/.test(v) || !(Number(v) > 0)) throw new HlRefusal(`${k} must be a positive decimal string`);
+  }
+}

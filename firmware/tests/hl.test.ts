@@ -50,6 +50,8 @@ test("hl policy: system addresses only for spot-send (HyperCore → HyperEVM)", 
 test("hl policy: USD amounts are sent with at most 6 decimals", () => {
   assert.equal(usdString(12.5), "12.5");
   assert.equal(usdString(1), "1");
+  assert.equal(usdString(10), "10");
+  assert.equal(usdString(100.5), "100.5");
   assert.equal(usdString(0.1234567), "0.123457");
   assert.throws(() => usdString(0.0000001), /precision/);
 });

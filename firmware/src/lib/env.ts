@@ -76,6 +76,18 @@ export const env = {
   hlApiUrl: str("HL_API_URL"),
   /** Hard cap (USD) on any single transfer out of a company's Hyperliquid account. Unset = no cap. */
   hlMaxTransferUsd: num("HL_MAX_TRANSFER_USD", Infinity),
+  /** "on" moves treasury SOL to Hyperliquid through Unit (and back for buybacks). Off by default: no funds move. */
+  hlBridge: str("HL_BRIDGE", "off") === "on",
+  /** SOL kept on each Solana treasury for gas, rent and small buybacks; the rest is moved to Hyperliquid. */
+  solFloatSol: num("SOL_FLOAT_SOL", 0.3),
+  /** Only sweep when at least this much SOL is above the float (Unit's network fee is ~0.013 SOL per deposit). */
+  solSweepMinSol: num("SOL_SWEEP_MIN_SOL", 0.5),
+  /** Refill the Solana treasury from Hyperliquid when it drops below this. */
+  solRefillBelowSol: num("SOL_REFILL_BELOW_SOL", 0.1),
+  /** Worst price for uSOL ⇄ USDC conversions, vs. Hyperliquid's SOL perp mid. */
+  hlMaxSlippageBps: num("HL_MAX_SLIPPAGE_BPS", 300),
+  /** Platform's Hyperliquid address: compute is repaid here in USDC when the company has it. */
+  platformHlWallet: str("PLATFORM_HL_WALLET"),
 };
 
 export const isLive = () => env.mode === "live";

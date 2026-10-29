@@ -1,6 +1,6 @@
 # Hypeware on Hyperliquid: migration plan
 
-**Status:** Phase 1 (foundation) built; Phases 2–5 not started.
+**Status:** Phases 1 (foundation) and 2 (treasury bridge, behind `HL_BRIDGE`) built; Phases 3–5 not started.
 **Decision so far:** tokens keep launching on **Solana** (StonkFun). Hyperliquid becomes the **tech chain**: the treasury, agent trading, customer payments and platform contracts move there.
 
 ```
@@ -44,6 +44,12 @@ Each phase is its own PR, works in `FIRMWARE_MODE="mock"`, and runs on the **Hyp
 - Company page and `/api/companies/:slug` show the USDC treasury.
 
 ### Phase 2: Treasury bridge (Solana fees → USDC on Hyperliquid)
+
+> **Built.** Off until `HL_BRIDGE=on`. Notes from building it:
+> - Unit signs `<node>:user-<coinType>-<dstChain>-<dstAddr>-<address>` with EVM addresses checksummed. Its docs show an older format that no longer verifies. Addresses need 2 of 3 guardian keys and are re-checked before every use.
+> - Unit's testnet is Solana **devnet** ⇄ Hyperliquid testnet, so the bridge refuses to run unless `HL_NETWORK` matches `SOLANA_CLUSTER`.
+> - The testnet USOL/USDC book is far off the SOL price (≈$14 vs ≈$110 on 2026-10-29). Conversions are capped at `HL_MAX_SLIPPAGE_BPS` from Hyperliquid's SOL perp mid, so on testnet they won't fill unless you raise it.
+> - Accounting stays in lamports for now: the treasury balance = Solana + Hyperliquid (USDC at the SOL price, uSOL 1:1, in-flight transfers). Moving the ledger to USD is still to do.
 - After `claimCreatorFees`, sweep SOL above a float (e.g. 0.3 SOL) to the company's Unit deposit address. Unit's minimum is **0.12 SOL** and the network cost is about **$1.30**, so sweeps are batched (default threshold 0.5 SOL).
 - On arrival: sell uSOL for USDC on Hyperliquid spot. Record `BRIDGE_IN` and `SWAP` ledger rows.
 - Reverse path for buybacks: USDC → uSOL → Unit withdraw to the Solana treasury → existing `buyOwnToken`.
