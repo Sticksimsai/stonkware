@@ -216,9 +216,10 @@ export async function claimCreatorFees(c: Company): Promise<number> {
   return claimed;
 }
 
-export async function bookRevenue(c: Company, lamports: number, sig: string, memo: string) {
+/** Book customer revenue. `platformPaid`: the platform's share was already paid another way (Hyperliquid payments). */
+export async function bookRevenue(c: Company, lamports: number, sig: string, memo: string, opts: { platformPaid?: boolean } = {}) {
   await record(c.id, "REVENUE", lamports, memo, sig);
-  await payPlatform(c, platformCut(lamports, "revenue").platform, "5% platform share of revenue");
+  if (!opts.platformPaid) await payPlatform(c, platformCut(lamports, "revenue").platform, "5% platform share of revenue");
   await db.update(C).set({ lifetimeRevenue: bump(C.lifetimeRevenue, lamports), wakeRequested: true, sleepingUntil: null }).where(eq(C.id, c.id));
 }
 

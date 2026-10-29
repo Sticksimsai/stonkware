@@ -17,4 +17,4 @@ export function checkSpend(p: { status: string; balance: number; amount: number;
   return { ok: true };
 }
 
-export const OFFER_BOUNDS = { minSol: 0.001, maxSol: 1000, maxActive: 20 };
+export const OFFER_BOUNDS = { minSol: 0.001, maxSol: 1000, minUsd: 1, maxUsd: 100_000, maxActive: 20 };

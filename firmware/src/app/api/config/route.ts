@@ -6,6 +6,7 @@ import { handle, ok } from "@/lib/http";
 import { higgsfieldEnabled } from "@/lib/media/higgsfield";
 import { getFlagship, isPrelaunch } from "@/lib/flagship";
 import { poolStats, vanityEnabled } from "@/lib/vanity";
+import { evmConfig, paymentsEnabled } from "@/lib/hl/payments";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,6 +45,7 @@ export const GET = handle(async () => {
       treasuryFloorLamports: FEES.treasuryFloorLamports,
     },
     media: { enabled: higgsfieldEnabled(), imageUsd: env.hfImageUsd, videoUsdPerSec: env.hfVideoUsdPerSec },
+    hyperliquid: { network: env.hlNetwork, payments: paymentsEnabled(), solCheckout: env.solCheckout, evm: { chainId: evmConfig().chainId, rpc: evmConfig().rpc } },
     curve: { initialMarketCapSol: LAUNCHPAD.initialMarketCapSol, migrationMarketCapSol: LAUNCHPAD.migrationMarketCapSol, totalSupply: LAUNCHPAD.totalSupply, decimals: LAUNCHPAD.decimals },
   });
 });

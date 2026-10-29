@@ -88,12 +88,12 @@ export function checkHlIntent(intent: HlIntent, ctx: PolicyContext): void {
 }
 
 /**
- * Treasury conversions (uSOL ⇄ USDC). Signed by the API wallet as immediate-or-cancel orders with a worst price,
+ * Treasury conversions (uSOL ⇄ USDC, and HYPE customer payments → USDC). Signed by the API wallet as immediate-or-cancel orders with a worst price,
  * so nothing rests on the book and a thin market can't fill far from the reference price.
  */
-export type ConvertIntent = { coin: "USOL"; side: "buy" | "sell"; size: string; limitPx: string };
+export type ConvertIntent = { coin: "USOL" | "HYPE"; side: "buy" | "sell"; size: string; limitPx: string };
 
-const CONVERT_COINS = new Set(["USOL"]);
+const CONVERT_COINS = new Set(["USOL", "HYPE"]);
 
 export function checkConvert(i: ConvertIntent): void {
   if (!CONVERT_COINS.has(i.coin)) throw new HlRefusal(`conversions only support ${[...CONVERT_COINS].join(", ")}`);

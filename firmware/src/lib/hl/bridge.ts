@@ -13,7 +13,7 @@ import { solUsd } from "../price";
 import { hlBalance, type HlBalance } from "./client";
 import { ensureAgentApproved } from "./accounts";
 import { hlConvert, hlExecute } from "./signer";
-import { formatSpotPrice, limitPrice, roundSize, solUsdRef, spotMarket, tokenWire } from "./spot";
+import { formatSpotPrice, limitPrice, mids, roundSize, solUsdRef, spotMarket, tokenWire } from "./spot";
 import { assertVerified, unitAddress, unitOperations, type AddressProposal } from "./unit";
 import { matchOperation, networksMatch, nextState, refillAmount, sweepAmount, type Thresholds } from "./bridge-plan";
 
@@ -173,7 +173,10 @@ export async function hlValueLamports(c: Company): Promise<number> {
     db.select({ l: B.lamports, d: B.direction }).from(B).where(and(eq(B.companyId, c.id), eq(B.state, "SENT"))),
   ]);
   const usol = bal?.spot.find((s) => s.coin === "USOL")?.total ?? 0;
-  const usd = bal?.usd ?? 0;
+  // HYPE from customer payments that hasn't been converted to USDC yet
+  const hype = bal?.spot.find((s) => s.coin === "HYPE")?.total ?? 0;
+  const hypeUsd = hype > 0 ? hype * ((await mids())[(await spotMarket("HYPE")).name] ?? 0) : 0;
+  const usd = (bal?.usd ?? 0) + hypeUsd;
   const inFlightLamports = flying.reduce((a, r) => a + r.l, 0);
   return Math.floor((usd / px) * 1e9 + usol * 1e9) + inFlightLamports;
 }
