@@ -24,6 +24,6 @@ export function handle<A extends unknown[]>(fn: (...a: A) => Promise<Response>) 
 /** JSON-safe company projection (never exposes sealed keys or raw image bytes). */
 export function publicCompany<T extends Record<string, unknown>>(c: T) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { treasurySecretEnc, mintSecretEnc, image, ...rest } = c as Record<string, unknown>;
+  const { treasurySecretEnc, mintSecretEnc, hlSecretEnc, hlAgentSecretEnc, image, ...rest } = c as Record<string, unknown>;
   return rest;
 }

@@ -9,6 +9,7 @@ import { handle, ok, fail } from "@/lib/http";
 import { findModel } from "@/lib/models";
 import { isAddress } from "@/lib/solana";
 import { newSealedKeypair } from "@/lib/signer";
+import { newHlKeys } from "@/lib/hl/accounts";
 import { slugify } from "@/lib/slug";
 import { lamports } from "@/lib/units";
 import { RESERVED_SUBDOMAINS } from "@/lib/sites";
@@ -73,7 +74,7 @@ export const POST = handle(async (req: Request) => {
   const [c] = await db.insert(schema.companies).values({
     slug, name: b.name, ticker: b.ticker, aim: b.aim, tagline: b.aim.slice(0, 140), image, imageMime, twitter: b.twitter || null,
     model: model.id, modelLabel: model.label, creatorWallet: b.creatorWallet,
-    treasuryPubkey: treasury.pubkey, treasurySecretEnc: treasury.sealed, mintPubkey: mint.pubkey, mintSecretEnc: mint.sealed,
+    treasuryPubkey: treasury.pubkey, treasurySecretEnc: treasury.sealed, mintPubkey: mint.pubkey, mintSecretEnc: mint.sealed, ...newHlKeys(),
     devBuySol: b.devBuySol, fuelSol: b.fuelSol, requiredLamports: required,
     quoteMint: quote?.mint ?? null, quoteSymbol: quote?.symbol ?? null, venue: quote ? "StonkFun" : null,
   }).returning({ id: schema.companies.id });

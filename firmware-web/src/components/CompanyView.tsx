@@ -89,6 +89,22 @@ export default function CompanyView({ slug, embedded = false }: { slug: string; 
         <Stat icon="flame" label="Burned" value={tokens(c.tokensBurned)} />
       </div>
 
+      {live && c.hyperliquid && (
+        <div className="card mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 p-3 font-mono text-[12px] text-soft">
+          <span className="text-cream">Hyperliquid treasury</span>
+          <span className="tabular-nums text-cream">
+            {c.hyperliquid.balance ? new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(c.hyperliquid.balance.usd) : "unavailable"}
+          </span>
+          {c.hyperliquid.network === "testnet" && <span className="text-mute">testnet</span>}
+          <span className={c.hyperliquid.agentApproved ? "text-lime" : "text-mute"}>
+            {c.hyperliquid.agentApproved ? "✓ trading key approved" : "trading key pending first deposit"}
+          </span>
+          <a href={c.hyperliquid.explorer} target="_blank" rel="noreferrer" className="ml-auto min-w-0 truncate hover:text-cream" translate="no">
+            {c.hyperliquid.address.slice(0, 6)}…{c.hyperliquid.address.slice(-4)} ↗
+          </a>
+        </div>
+      )}
+
       {live && (
         <Reveal className="mt-10">
           <SectionTitle icon="eye">Live · the agent at work</SectionTitle>

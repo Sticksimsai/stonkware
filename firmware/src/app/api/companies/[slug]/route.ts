@@ -1,7 +1,8 @@
 // Everything a company page needs in one call.
 import { companyPage } from "@/lib/queries";
 import { stonkfunTokenUrl } from "@/lib/stonkfun";
-import { env, explorer } from "@/lib/env";
+import { env, explorer, hlExplorer } from "@/lib/env";
+import { hlBalance } from "@/lib/hl/client";
 import { getCompany, treasuryBalance } from "@/lib/treasury";
 import { fail, handle, ok } from "@/lib/http";
 import { siteUrlFor } from "@/lib/sites";
@@ -20,6 +21,7 @@ export const GET = handle(async (_req: Request, { params }: { params: { slug: st
   if (!d) return fail(404, "not found");
   const c = d.company;
   const balanceLamports = c.status === "LIVE" ? await treasuryBalance(await getCompany(c.id)).catch(() => null) : null;
+  const hlBal = c.status === "LIVE" && c.hlAddress ? await hlBalance(c.hlAddress).catch(() => null) : null;
   return ok({
     company: {
       id: c.id, slug: c.slug, name: c.name, ticker: c.ticker, aim: c.aim, tagline: c.tagline, twitter: c.twitter,
@@ -29,6 +31,9 @@ export const GET = handle(async (_req: Request, { params }: { params: { slug: st
       lifetimeFees: c.lifetimeFees, lifetimeRevenue: c.lifetimeRevenue, lifetimeCompute: c.lifetimeCompute, lifetimeSpent: c.lifetimeSpent,
       tokensBurned: c.tokensBurned, sleepingUntil: c.sleepingUntil, lastRunAt: c.lastRunAt, createdAt: c.createdAt,
       balanceLamports,
+      hyperliquid: c.hlAddress
+        ? { network: env.hlNetwork, address: c.hlAddress, agentApproved: !!c.hlAgentApprovedAt, balance: hlBal, explorer: hlExplorer(c.hlAddress) }
+        : null,
       imageUrl: c.hasImage ? `${env.siteUrl}/api/image/${c.id}` : null,
       websiteUrl: c.flagship ? env.appUrl : d.files.length ? siteUrlFor(c.slug) : null,
       links: env.mode === "live" && c.status === "LIVE" && env.cluster !== "devnet" && !isPrelaunch(c)

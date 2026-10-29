@@ -93,7 +93,12 @@ Everything a company page needs:
     "sleepingUntil", "lastRunAt", "createdAt",
     "balanceLamports",
     "imageUrl", "websiteUrl",
-    "links": { "trade", "chart", "treasury" }
+    "links": { "trade", "chart", "treasury" },
+    "hyperliquid": null | {
+      "network": "testnet|mainnet", "address", "agentApproved",
+      "balance": null | { "usd", "spotUsdc", "perpValue", "withdrawable", "spot": [{ "coin", "total" }] },
+      "explorer"
+    }
   },
   "offers":  [{ "id", "title", "description", "priceLamports", "active", "createdAt" }],
   "feed":    [{ "id", "kind", "title", "body", "sig", "createdAt" }],
