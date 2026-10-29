@@ -1,0 +1,32 @@
+{
+  "deposit": {
+    "src": "solana",
+    "dst": "hyperliquid",
+    "asset": "sol",
+    "dstAddr": "0xfd40b1d2f5168031ff2a1ebd81cc1baa9b9602bd",
+    "response": {
+      "address": "CKC18FCBz8ceCFjiKwHKLK3ZdZQskxXGLQVPE334RDmu",
+      "signatures": {
+        "field-node": "+PsT18WiX/tr7VcRJetN01lUWlfBPfP131+LYuRCpcP3S4cuO/TOKFADNg5vGYvJGNKZvRUCtLsrwDetHM3sGQ==",
+        "hl-node-testnet": "PvrcFF59M3ZaKd+tSIR8+Btm9g6WEcoatCanxZ9XZE5iunWP2+VfZrWTJm+LK3Ud1yhHsFQiyVIGOhoSoNxEaQ==",
+        "node-1": "kD/kwiC1vgEWvjDFUwxE2rq68025sIl3u5jzu0eUS38xtNWGSE9e0jIR432nVX56osEFtwx4z21Vt5f1rdwa0g=="
+      },
+      "status": "OK"
+    }
+  },
+  "withdraw": {
+    "src": "hyperliquid",
+    "dst": "solana",
+    "asset": "sol",
+    "dstAddr": "976vvxwxcNrdM1a7EWDhXdtrhBkBHd73GpVXsMwif3p8",
+    "response": {
+      "address": "0x5DaD5FDfd6690645F10B94F94De2755024b0552E",
+      "signatures": {
+        "field-node": "nQfTQpcMlLfanFJUvuBN9QKq0lNn5ArDjGh3hgUGUTuGANJ3qSfraroja7gozivNbRPKkEF/vyb+X2UCDfA9kA==",
+        "hl-node-testnet": "hdjuGW9NPI5yiyuNx1y6ASO0oKBwqmQWA8WuPoeQCjgr7PrtUhQ8NMlhF95fYrUIVC2fu+8pKW4hAcVNXqToxA==",
+        "node-1": "GQRhxT0wwGYXsuVTn5IpziQnn2S/7euLbkGf1Uxm4a285s9PvS34InQCnnt3nasiOxHzOA1j4Mu1AZv8d1zXyw=="
+      },
+      "status": "OK"
+    }
+  }
+}

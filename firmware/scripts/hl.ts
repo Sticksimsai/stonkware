@@ -2,6 +2,7 @@
 //   npm run hl -- status                 every company's Hyperliquid address, API wallet state and USD balance
 //   npm run hl -- backfill               give every company without one a Hyperliquid account (keys only, no funds move)
 //   npm run hl -- approve <slug|ticker>  approve the company's API wallet now (its account must have received funds)
+//   npm run hl -- bridges [all]          SOL moving between Solana and Hyperliquid (default: only unfinished or problem ones)
 // The scheduler also does backfill + approval automatically; this is for checking and forcing it.
 import "./_env";
 
@@ -45,6 +46,17 @@ import "./_env";
     console.log(`$${c.ticker}: ${msg}\n  ${hlExplorer(c.hlAddress!)}`);
     process.exit(r === "approved" || r === "already" ? 0 : 1);
   }
-  console.log("usage: npm run hl -- status | backfill | approve <slug|ticker>");
+  if (cmd === "bridges") {
+    const B = schema.hlBridges;
+    const { inArray } = await import("drizzle-orm");
+    const rows = await db.select({ b: B, ticker: C.ticker }).from(B).innerJoin(C, eq(C.id, B.companyId))
+      .where(who === "all" ? undefined : inArray(B.state, ["SENT", "ARRIVED", "STUCK", "FAILED"])).orderBy(desc(B.createdAt)).limit(100);
+    if (!rows.length) console.log(who === "all" ? "no bridges yet" : "nothing in flight or failed");
+    for (const { b, ticker } of rows) {
+      console.log(`${b.createdAt.toISOString().slice(0, 16)} $${ticker.padEnd(10)} ${b.direction.padEnd(7)} ${(b.lamports / 1e9).toFixed(4).padStart(10)} SOL  ${b.state.padEnd(8)} unit:${(b.unitState ?? "-").padEnd(24)} ${b.error ?? ""}`);
+    }
+    process.exit(0);
+  }
+  console.log("usage: npm run hl -- status | backfill | approve <slug|ticker> | bridges [all]");
   process.exit(1);
 })().catch((e) => { console.error((e as Error).message); process.exit(1); });

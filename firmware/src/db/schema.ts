@@ -68,6 +68,10 @@ export const companies = sqliteTable(
     hlAgentAddress: text("hl_agent_address"),
     hlAgentSecretEnc: text("hl_agent_secret_enc"),
     hlAgentApprovedAt: ts("hl_agent_approved_at"),
+    /** Unit addresses (JSON, with guardian signatures; re-verified before every use). Deposit: SOL → this company's
+     *  Hyperliquid account. Withdraw: uSOL → this company's Solana treasury. */
+    unitSolDeposit: text("unit_sol_deposit"),
+    unitSolWithdraw: text("unit_sol_withdraw"),
 
     lifetimeFees: integer("lifetime_fees").notNull().default(0),
     lifetimeRevenue: integer("lifetime_revenue").notNull().default(0),
@@ -217,7 +221,7 @@ export const ledger = sqliteTable(
   {
     id: text("id").primaryKey().$defaultFn(createId),
     companyId: text("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
-    /** FUNDING | LAUNCH | FEE_CLAIM | REVENUE | PLATFORM_FEE | COMPUTE | BUYBACK | BURN | TRANSFER */
+    /** FUNDING | LAUNCH | FEE_CLAIM | REVENUE | PLATFORM_FEE | COMPUTE | BUYBACK | BURN | TRANSFER | BRIDGE | SWAP */
     kind: text("kind").notNull(),
     lamports: integer("lamports").notNull(),
     tokens: text("tokens"),
@@ -416,3 +420,34 @@ export type Media = typeof media.$inferSelect;
 export type Connection = typeof connections.$inferSelect;
 export type Bot = typeof bots.$inferSelect;
 export type Package = typeof packages.$inferSelect;
+
+/**
+ * SOL moving between a company's Solana treasury and its Hyperliquid account through Unit.
+ * to-hl: SOL sent to the Unit deposit address, arrives as uSOL, then sold for USDC.
+ * to-sol: uSOL sent to the Unit withdraw address, arrives as SOL on the Solana treasury (for buybacks and gas).
+ */
+export const hlBridges = sqliteTable(
+  "hl_bridges",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    companyId: text("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+    direction: text("direction").notNull(), // to-hl | to-sol
+    lamports: integer("lamports").notNull(),
+    /** Unit address the funds were sent to */
+    protocolAddress: text("protocol_address").notNull(),
+    /** Solana signature (to-hl) or Hyperliquid action ref (to-sol) */
+    sourceRef: text("source_ref"),
+    /** SENT → ARRIVED (to-hl: uSOL on Hyperliquid, waiting to be sold) → DONE | FAILED | STUCK */
+    state: text("state").notNull().default("SENT"),
+    unitState: text("unit_state"),
+    unitOpId: text("unit_op_id"),
+    /** to-hl: USDC received from selling the uSOL */
+    usdc: real("usdc"),
+    error: text("error"),
+    createdAt: ts("created_at").notNull().default(now()),
+    updatedAt: ts("updated_at").notNull().default(now()),
+    doneAt: ts("done_at"),
+  },
+  (t) => ({ byState: index("hl_bridges_state_idx").on(t.state, t.createdAt), byCompany: index("hl_bridges_company_idx").on(t.companyId, t.createdAt) }),
+);
+export type HlBridge = typeof hlBridges.$inferSelect;

@@ -27,6 +27,7 @@
     "stonkfun:probe": "tsx scripts/stonkfun-probe.ts",
     "company": "tsx scripts/company.ts",
     "hl": "tsx scripts/hl.ts",
+    "hl:e2e": "tsx scripts/hl-e2e.ts",
     "browser:check": "tsx scripts/browser-check.ts",
     "preflight": "tsx scripts/preflight.ts",
     "premigrate": "tsx scripts/premigrate.ts"

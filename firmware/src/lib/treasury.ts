@@ -17,6 +17,10 @@ import { emit, record } from "./feed";
 import { fmtSol } from "./units";
 import { siteUrlFor } from "./sites";
 import { buyOwnToken, collectStonkfunFees, isStonkfun, launchStonkfun, markGraduation, payDevBuy, tokenBalance } from "./venue";
+import { bridgeReady, ensureSolLiquidity, hlValueLamports, solPrice } from "./hl/bridge";
+import { hlBalance } from "./hl/client";
+import { hlExecute } from "./hl/signer";
+import { tokenWire } from "./hl/spot";
 
 const C = schema.companies;
 const L = schema.ledger;
@@ -34,9 +38,15 @@ async function unsettledCompute(companyId: string) {
   return r.s;
 }
 
-/** Spendable view of the treasury: on-chain balance minus compute not yet reimbursed. Mock: ledger sum. */
+/**
+ * Spendable view of the treasury, in lamports: Solana balance + everything on Hyperliquid (USDC valued at the SOL
+ * price, uSOL 1:1, and transfers in flight) minus compute not yet reimbursed. Mock: ledger sum.
+ */
 export async function treasuryBalance(c: Company): Promise<number> {
-  if (isLive()) return (await connection().getBalance(new PublicKey(c.treasuryPubkey))) - (await unsettledCompute(c.id));
+  if (isLive()) {
+    const [sol, hl] = await Promise.all([connection().getBalance(new PublicKey(c.treasuryPubkey)), hlValueLamports(c).catch(() => 0)]);
+    return sol + hl - (await unsettledCompute(c.id));
+  }
   const [r] = await db.select({ s: sql<number>`coalesce(sum(${L.lamports}),0)` }).from(L).where(eq(L.companyId, c.id));
   return r.s;
 }
@@ -217,6 +227,7 @@ export async function bookRevenue(c: Company, lamports: number, sig: string, mem
 export async function transferSol(c: Company, to: string, lamports: number, reason: string): Promise<string> {
   if (to === c.treasuryPubkey) throw new Error("cannot transfer to itself");
   await guardSpend(c, lamports);
+  await ensureSolLiquidity(c, lamports);
   const sig = await transferFromTreasury(c.treasurySecretEnc, c.treasuryPubkey, to, lamports);
   await db.insert(L).values({ companyId: c.id, kind: "TRANSFER", lamports: -lamports, counterparty: to, sig, memo: reason.slice(0, 300) });
   await db.update(C).set({ lifetimeSpent: bump(C.lifetimeSpent, lamports) }).where(eq(C.id, c.id));
@@ -237,6 +248,7 @@ async function rawTokenBalance(owner: PublicKey, mint: PublicKey): Promise<bigin
 export async function buybackAndBurn(c: Company, lamports: number, burn = true): Promise<{ sig: string; tokens: bigint }> {
   if (isPrelaunch(c)) throw new Error("the token hasn't launched yet, so there is nothing to buy back");
   await guardSpend(c, lamports);
+  await ensureSolLiquidity(c, lamports + 5_000_000);
   let sig: string, tokens: bigint, burnSig: string | null = null;
   if (isLive()) {
     const owner = new PublicKey(c.treasuryPubkey);
@@ -285,11 +297,26 @@ export async function chargeCompute(c: Company, lamports: number, memo: string) 
   await db.update(C).set({ lifetimeCompute: bump(C.lifetimeCompute, amt) }).where(eq(C.id, c.id));
 }
 
+/**
+ * Repay the platform for compute. Prefers USDC on Hyperliquid (instant, no gas) when the bridge is on and the
+ * company holds enough; otherwise SOL from the Solana treasury, as before.
+ */
 export async function settleCompute(c: Company) {
-  if (!env.platformFeeWallet) return;
   const rows = await db.select().from(L).where(and(eq(L.companyId, c.id), eq(L.kind, "COMPUTE"), eq(L.settled, false)));
   const total = rows.reduce((a, r) => a - r.lamports, 0);
   if (total < 10_000_000) return;
-  const sig = await transferFromTreasury(c.treasurySecretEnc, c.treasuryPubkey, env.platformFeeWallet, total);
+  let sig: string | null = null;
+  if (bridgeReady() && env.platformHlWallet && c.hlAddress) {
+    const usd = Math.ceil((total / 1e9) * (await solPrice()) * 100) / 100;
+    const bal = await hlBalance(c.hlAddress).catch(() => null);
+    if (bal && bal.spotUsdc >= usd) {
+      sig = await hlExecute(c, { kind: "spot-send", to: env.platformHlWallet, token: tokenWire("USDC"), amount: usd.toFixed(2) });
+    }
+  }
+  if (!sig) {
+    if (!env.platformFeeWallet) return;
+    if (isLive() && (await connection().getBalance(new PublicKey(c.treasuryPubkey))) < total + 1_000_000) return; // wait for SOL (or USDC)
+    sig = await transferFromTreasury(c.treasurySecretEnc, c.treasuryPubkey, env.platformFeeWallet, total);
+  }
   await db.update(L).set({ settled: true, sig }).where(inArray(L.id, rows.map((r) => r.id)));
 }
