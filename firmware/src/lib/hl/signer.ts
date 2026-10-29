@@ -1,5 +1,5 @@
 // The Hyperliquid signer. With src/lib/signer.ts (Solana), this is the ONLY place that decrypts keys.
-// Every master-key action passes checkHlIntent first. Orders will be signed with the API wallet only (Phase 3).
+// Every master-key action passes checkHlIntent first. Orders, leverage and cancels are signed with the API wallet only.
 import { randomBytes } from "crypto";
 import { ExchangeClient } from "@nktkas/hyperliquid";
 import { bytesToHex, hexToBytes } from "viem";
@@ -7,7 +7,7 @@ import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from 
 import { env, isLive } from "../env";
 import { open, seal } from "../vault";
 import { transport } from "./client";
-import { checkConvert, checkHlIntent, HlRefusal, usdString, type ConvertIntent, type HlIntent } from "./policy";
+import { checkConvert, checkHlIntent, checkTrade, HlRefusal, usdString, type ConvertIntent, type HlIntent, type TradeIntent } from "./policy";
 
 /** A fresh EVM key; only the address and the sealed secret leave this function. */
 export function newSealedEvmKey(): { address: string; sealed: string } {
@@ -87,6 +87,49 @@ export async function hlConvert(c: HlAgentAccount, asset: number, intent: Conver
   } catch (e) {
     // an IOC order that finds no liquidity within the limit is "no fill", not a failure
     if (/could not immediately match/i.test((e as Error).message)) return { size: 0, avgPx: 0 };
+    throw e;
+  }
+}
+
+export type TradeResult =
+  | { status: "filled"; size: number; avgPx: number; oid: number }
+  | { status: "resting"; oid: number }
+  | { status: "none"; reason: string };
+
+function agentExchange(c: HlAgentAccount): ExchangeClient {
+  if (!c.hlAddress || !c.hlAgentAddress || !c.hlAgentSecretEnc) throw new HlRefusal("company has no API wallet");
+  if (!c.hlAgentApprovedAt) throw new HlRefusal("API wallet not approved yet");
+  return new ExchangeClient({ transport: transport(), wallet: unseal(c.hlAgentSecretEnc, c.hlAgentAddress) });
+}
+
+/** Agent trading: orders, isolated leverage, cancels. API wallet only, so nothing here can move funds out. */
+export async function hlTrade(c: HlAgentAccount, t: TradeIntent): Promise<TradeResult> {
+  checkTrade(t);
+  if (!isLive()) {
+    if (t.kind === "order") return t.tif === "Ioc" ? { status: "filled", size: Number(t.size), avgPx: Number(t.price), oid: Date.now() } : { status: "resting", oid: Date.now() };
+    return { status: "none", reason: "mock" };
+  }
+  const exchange = agentExchange(c);
+  if (t.kind === "leverage") {
+    await exchange.updateLeverage({ asset: t.asset, isCross: false, leverage: t.leverage });
+    return { status: "none", reason: "leverage set" };
+  }
+  if (t.kind === "cancel") {
+    await exchange.cancel({ cancels: [{ a: t.asset, o: t.oid }] });
+    return { status: "none", reason: "cancelled" };
+  }
+  try {
+    const r = await exchange.order({
+      orders: [{ a: t.asset, b: t.isBuy, p: t.price, s: t.size, r: t.reduceOnly, t: { limit: { tif: t.tif } } }],
+      grouping: "na",
+    });
+    const st = r.response.data.statuses[0] as { filled?: { totalSz: string; avgPx: string; oid: number }; resting?: { oid: number }; error?: string } | undefined;
+    if (st?.filled) return { status: "filled", size: Number(st.filled.totalSz), avgPx: Number(st.filled.avgPx), oid: st.filled.oid };
+    if (st?.resting) return { status: "resting", oid: st.resting.oid };
+    return { status: "none", reason: st?.error ?? "no fill" };
+  } catch (e) {
+    const m = (e as Error).message;
+    if (/could not immediately match/i.test(m)) return { status: "none", reason: "no liquidity within your price" };
     throw e;
   }
 }

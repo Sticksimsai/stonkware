@@ -451,3 +451,15 @@ export const hlBridges = sqliteTable(
   (t) => ({ byState: index("hl_bridges_state_idx").on(t.state, t.createdAt), byCompany: index("hl_bridges_company_idx").on(t.companyId, t.createdAt) }),
 );
 export type HlBridge = typeof hlBridges.$inferSelect;
+
+/** Each company's Hyperliquid equity at its first trade check of a UTC day: the base for the daily loss limit. */
+export const hlTradingDays = sqliteTable(
+  "hl_trading_days",
+  {
+    companyId: text("company_id").notNull().references(() => companies.id, { onDelete: "cascade" }),
+    day: text("day").notNull(), // YYYY-MM-DD (UTC)
+    startEquityUsd: real("start_equity_usd").notNull(),
+    createdAt: ts("created_at").notNull().default(now()),
+  },
+  (t) => ({ pk: uniqueIndex("hl_trading_days_pk").on(t.companyId, t.day) }),
+);
