@@ -1,4 +1,4 @@
-// Pixel-art icons in the Stonkware brand style. Each icon is a grid: x = cream, c = cyan, l = lime, r = red.
+// Pixel-art icons in the Hypeware brand style. Each icon is a grid: x = cream, c = cyan, l = lime, r = red.
 const C: Record<string, string> = { x: "#efe9d9", c: "#00e8e5", l: "#e3e63d", r: "#f73c4f" };
 
 export const ICONS = {

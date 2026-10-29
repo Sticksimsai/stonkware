@@ -1,5 +1,5 @@
 // The agent's media studio: images and videos rendered with Higgsfield, billed to the treasury,
-// downloaded and served by Stonkware (Higgsfield only keeps outputs ~7 days).
+// downloaded and served by Hypeware (Higgsfield only keeps outputs ~7 days).
 import { mkdir, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
@@ -44,7 +44,7 @@ async function headroom(c: Company) {
 export type MediaRequest = { kind: "image" | "video"; prompt: string; aspect?: string; durationSec?: number; fromImageId?: string; runId?: string | null };
 
 export async function requestMedia(c: Company, r: MediaRequest): Promise<Media> {
-  if (!higgsfieldEnabled()) throw new Error("the media studio isn't enabled on this Stonkware server");
+  if (!higgsfieldEnabled()) throw new Error("the media studio isn't enabled on this Hypeware server");
   const prompt = r.prompt.trim().slice(0, 2400);
   if (prompt.length < 8) throw new Error("describe what to generate (at least a sentence)");
   const aspect = (ASPECTS as readonly string[]).includes(r.aspect ?? "") ? r.aspect! : r.kind === "video" ? "16:9" : "1:1";

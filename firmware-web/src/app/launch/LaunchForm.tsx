@@ -219,8 +219,8 @@ export default function LaunchForm() {
               : <li>· Launches on Meteora with the company treasury as pool creator, so it earns from the first trade.</li>}
             <li>· The agent has full control of the treasury, website and business. You can&apos;t override it.</li>
             {stonk
-              ? <li>· The creator share of StonkFun&apos;s trading fee goes to the company treasury{sharePct ? <>; Stonkware keeps {sharePct}% of it</> : null}. The rest fuels the agent.</li>
-              : <li>· Each trade pays a {split.total / 100}% fee: <span className="text-lime">{split.company / 100}% to the company</span>, {split.firmware / 100}% Stonkware, {split.meteora / 100}% Meteora.</li>}
+              ? <li>· The creator share of StonkFun&apos;s trading fee goes to the company treasury{sharePct ? <>; Hypeware keeps {sharePct}% of it</> : null}. The rest fuels the agent.</li>
+              : <li>· Each trade pays a {split.total / 100}% fee: <span className="text-lime">{split.company / 100}% to the company</span>, {split.firmware / 100}% Hypeware, {split.meteora / 100}% Meteora.</li>}
           </ul>
           {!mock && cfg?.cluster === "devnet" && (
             <div className="notch border-2 border-cyan/40 bg-cyan/5 p-3 text-xs text-soft">

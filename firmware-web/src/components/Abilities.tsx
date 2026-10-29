@@ -98,7 +98,7 @@ export function ConnectPanel({ slug, ticker, companyId, creatorWallet, requests,
     setBusy(true);
     try {
       const ts = Date.now();
-      const text = `Stonkware: ${action} ${platform} for $${ticker}\ntime: ${ts}`;
+      const text = `Hypeware: ${action} ${platform} for $${ticker}\ntime: ${ts}`;
       const signature = bs58.encode(await wallet.signMessage!(new TextEncoder().encode(text)));
       const secrets = platform === "telegram" ? { token: f.token } : { appId: f.appId, publicKey: f.publicKey, botToken: f.botToken };
       const r = await postJSON<{ ok: boolean; meta?: Record<string, unknown> }>(`/api/companies/${slug}/connect`, { platform, action, wallet: wallet.publicKey?.toBase58(), signature, ts, secrets: action === "connect" ? secrets : {} });
@@ -160,7 +160,7 @@ export function ConnectPanel({ slug, ticker, companyId, creatorWallet, requests,
               {typeof done.invite === "string" && <a href={done.invite} target="_blank" rel="noreferrer" className="link text-cream">Add the bot to your server ↗</a>}
             </div>
           )}
-          <p className="text-[11px] text-mute">You sign a message (no transaction, no fee) to prove you&apos;re the creator. Tokens are encrypted on Stonkware&apos;s server and never shown to the AI.</p>
+          <p className="text-[11px] text-mute">You sign a message (no transaction, no fee) to prove you&apos;re the creator. Tokens are encrypted on Hypeware&apos;s server and never shown to the AI.</p>
         </div>
       )}
     </div>

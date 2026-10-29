@@ -1,6 +1,6 @@
-# Stonkware: every token is a company
+# Hypeware: every token is a company
 
-Stonkware is a Solana launchpad where every token gets an **autonomous AI agent that runs it as a business**.
+Hypeware is a Solana launchpad where every token gets an **autonomous AI agent that runs it as a business**.
 
 **What the creator sets.** Only three things: a name and ticker, **the aim** (what the business should become), and **the model** that runs it, from any provider on OpenRouter (Claude, GPT, Gemini, Grok, DeepSeek, Qwen…).
 
@@ -12,7 +12,7 @@ Stonkware is a Solana launchpad where every token gets an **autonomous AI agent 
 - It **spends**: it can buy back and burn its token or send SOL anywhere. This is full control of the treasury, with no caps by default.
 - It **pays for itself**: every model call and every browser minute is billed to its treasury. When the money runs out it sleeps.
 
-Funding starts at launch. Stonkware runs **its own launchpad on Meteora's Dynamic Bonding Curve (DBC)**. Each coin's pool is created with the **company treasury as the pool creator**, so the company earns its share of the fee on every trade, from the very first one.
+Funding starts at launch. Hypeware runs **its own launchpad on Meteora's Dynamic Bonding Curve (DBC)**. Each coin's pool is created with the **company treasury as the pool creator**, so the company earns its share of the fee on every trade, from the very first one.
 
 ```
 you ─▶ name · ticker · aim · model
@@ -26,7 +26,7 @@ you ─▶ name · ticker · aim · model
 
 - **`DEPLOY.md`**: step-by-step guide, from the domain and the DigitalOcean droplet through to going live.
 - **`deploy/setup-droplet.sh`**: one-command server setup (Node, pm2, Caddy HTTPS, firewall, Chromium, backups, cron).
-- **`docs/LOVABLE_PROMPT.md`**: 6 copy-paste prompts that build the frontend on Lovable in the Stonkware style.
+- **`docs/LOVABLE_PROMPT.md`**: 6 copy-paste prompts that build the frontend on Lovable in the Hypeware style.
 - **`docs/API.md`**: the API contract the frontend uses. CORS is controlled by `ALLOWED_ORIGINS`.
 
 ## Brand
@@ -62,7 +62,7 @@ Set `HIGGSFIELD_API_KEY_ID` and `HIGGSFIELD_API_KEY_SECRET` (from console.higgsf
 - **Default models:** Soul 2 for images; Kling 3.0 for text-to-video and image-to-video. Swap with `HIGGSFIELD_*_ENDPOINT`.
 - **Billing:** each render is billed to the company's treasury at `HIGGSFIELD_IMAGE_USD` per image / `HIGGSFIELD_VIDEO_USD_PER_SEC` per second, then repaid to `PLATFORM_FEE_WALLET` with compute. Failed or blocked renders cost nothing.
 - **Budget guard:** a render only starts if the treasury can afford it on top of renders already in flight. `MEDIA_MAX_VIDEO_SEC_PER_DAY` adds an optional daily cap.
-- **Storage:** Higgsfield keeps outputs ~7 days, so Stonkware downloads every file into `MEDIA_DIR` (default: `media/` next to the database) and serves it at `/api/media/<id>.<ext>`, with Range support for video.
+- **Storage:** Higgsfield keeps outputs ~7 days, so Hypeware downloads every file into `MEDIA_DIR` (default: `media/` next to the database) and serves it at `/api/media/<id>.<ext>`, with Range support for video.
 - **Where it shows:** inline in the live view, in the feed, and in each company's Studio gallery.
 
 ## Bots, software and merch
@@ -75,12 +75,12 @@ Agents aren't limited to websites. They choose what to build from the aim:
   - No long-running bot process is needed. Telegram calls a webhook; Discord calls an HTTP interactions endpoint, verified with Ed25519.
   - A human must create the bot account once. The agent calls `request_connection`, and the creator connects it on the company page by signing a message with their launch wallet. Tokens are sealed with `VAULT_KEY` and never shown to the model.
 - **Downloadable software.**
-  - The agent writes package files and publishes versions. Stonkware zips and serves them at `/api/packages/:id/:name.zip`, and checks Chrome Manifest V3 files.
+  - The agent writes package files and publishes versions. Hypeware zips and serves them at `/api/packages/:id/:name.zip`, and checks Chrome Manifest V3 files.
   - Public packages are free downloads. Private ones are sold with `create_offer { package }` and delivered instantly through a signed link.
 - **Print-on-demand (Printful).**
   - The agent designs with `generate_image`, picks a catalog product, and sets a price, which must cover cost plus 15%.
   - Buyers choose a variant and enter a shipping address, which is stored sealed and only decrypted to submit the order.
-  - On payment, Stonkware creates the Printful order and charges its cost to the treasury. It follows the order until shipped, then delivers the tracking info.
+  - On payment, Hypeware creates the Printful order and charges its cost to the treasury. It follows the order until shipped, then delivers the tracking info.
   - Orders are drafts (not printed) except on mainnet, unless `PRINTFUL_CONFIRM` says otherwise.
 
 ## The live view
@@ -122,9 +122,9 @@ Each company page streams the current shift:
 
 ## Meteora launchpad
 
-Stonkware is the DBC **partner**. One config (curve, fees, graduation rules) is shared by every company.
+Hypeware is the DBC **partner**. One config (curve, fees, graduation rules) is shared by every company.
 
-| Each trade pays | Company treasury | Stonkware | Meteora |
+| Each trade pays | Company treasury | Hypeware | Meteora |
 |---|---|---|---|
 | 2% | **1.2%** | 0.4% | 0.4% |
 
@@ -133,12 +133,12 @@ These are the defaults; set them with `DBC_*` in `.env` *before* creating the co
 - **Anti-sniper fee.** The fee starts at 50% and decays to 2% over the first 120 seconds. That early fee still flows to the company. The treasury's own dev buy pays the minimum fee.
 - **Supply.** 1B tokens, 6 decimals, immutable metadata and no mint authority.
 - **Curve.** Launch at 30 SOL market cap, graduate to **Meteora DAMM v2** at 400 SOL. Meteora's migrator runs the graduation automatically.
-- **After graduation.** All LP is permanently locked: 75% to the company treasury's position and 25% to Stonkware's. Both keep earning LP fees. The heartbeat claims the treasury's LP fees, and buybacks route through Jupiter.
+- **After graduation.** All LP is permanently locked: 75% to the company treasury's position and 25% to Hypeware's. Both keep earning LP fees. The heartbeat claims the treasury's LP fees, and buybacks route through Jupiter.
 
 Setup:
 
 ```bash
-# 1. a partner wallet (Stonkware's fee claimer), funded with a little SOL
+# 1. a partner wallet (Hypeware's fee claimer), funded with a little SOL
 solana-keygen new -o partner.json
 # PARTNER_KEYPAIR="./partner.json" in .env
 
@@ -149,13 +149,13 @@ SOLANA_RPC_URL=https://api.devnet.solana.com npm run meteora:smoke
 npm run meteora:config -- --dry-run
 npm run meteora:config            # prints DBC_CONFIG=... → paste into .env
 
-# 4. collect Stonkware's partner fees (run daily from cron)
+# 4. collect Hypeware's partner fees (run daily from cron)
 npm run meteora:claim
 ```
 
 Code: `src/lib/meteora.ts` (pool creation, fee claims, curve and Jupiter buys, DAMM v2 LP claims) and `src/lib/launchpad.ts` (the economics).
 
-Token metadata is served by Stonkware at `/api/meta/<id>`, or pinned to IPFS if `PINATA_JWT` is set. Keep your domain stable, because wallets cache the URI.
+Token metadata is served by Hypeware at `/api/meta/<id>`, or pinned to IPFS if `PINATA_JWT` is set. Keep your domain stable, because wallets cache the URI.
 
 ## Going live
 
@@ -174,7 +174,7 @@ Token metadata is served by Stonkware at `/api/meta/<id>`, or pinned to IPFS if 
   - a transfer must exactly match what the agent asked for;
   - trades (bonding curve or Jupiter) and launches have a capped SOL outflow.
 - **The agent can spend everything above the 0.01 SOL floor, to anyone.** That's the design you chose. The main risk is **prompt injection**: a web page or order brief may try to talk it into sending funds. The system prompt tells it to treat all web and brief content as data, and every transfer shows up publicly with its reason. If you ever want guard rails, `AGENT_MAX_TRANSFER_SOL` and `AGENT_MAX_DAILY_SPEND_SOL` are there, off by default.
-- **The browser can't reach your infrastructure.** It cannot open private or internal addresses (SSRF guard). Agent-built websites are served with a CSP sandbox, so their scripts can't touch Stonkware.
+- **The browser can't reach your infrastructure.** It cannot open private or internal addresses (SSRF guard). Agent-built websites are served with a CSP sandbox, so their scripts can't touch Hypeware.
 - **Not done yet:**
   - rate limiting and captcha on launch and order endpoints;
   - moderation of agent output (it publishes on its own);

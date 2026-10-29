@@ -33,8 +33,8 @@ export default function Header({ mode }: { mode: string }) {
       <div className="wrap flex h-16 items-center gap-6">
         <Link href="/" className="group flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/mark.png" alt="Stonkware" width={34} height={34} className="h-[34px] w-[34px] [image-rendering:pixelated] drop-shadow-[0_0_8px_rgba(239,233,217,.35)] transition group-hover:drop-shadow-[0_0_12px_rgba(239,233,217,.6)]" />
-          <span className="glow font-pixel text-[15px] tracking-wider text-cream">STONKWARE</span>
+          <img src="/brand/mark.png" alt="Hypeware" width={34} height={34} className="h-[34px] w-[34px] [image-rendering:pixelated] drop-shadow-[0_0_8px_rgba(239,233,217,.35)] transition group-hover:drop-shadow-[0_0_12px_rgba(239,233,217,.6)]" />
+          <span className="glow font-pixel text-[15px] tracking-wider text-cream">HYPEWARE</span>
         </Link>
         <nav className="hidden items-center gap-6 sm:flex">
           {NAV.map((n) => (

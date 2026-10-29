@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const d = await companyPage(params.slug);
-  return { title: d ? `${d.company.name} ($${d.company.ticker}) — Stonkware` : "Not found" };
+  return { title: d ? `${d.company.name} ($${d.company.ticker}) — Hypeware` : "Not found" };
 }
 
 export default async function CompanyPage({ params }: { params: { slug: string } }) {

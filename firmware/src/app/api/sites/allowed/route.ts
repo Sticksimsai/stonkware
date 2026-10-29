@@ -1,5 +1,5 @@
 // Caddy on-demand TLS "ask" hook: only issue certificates for subdomains of real companies.
-//   GET /api/sites/allowed?domain=brew.stonkware.com  → 200 | 404
+//   GET /api/sites/allowed?domain=brew.hypeware.fun  → 200 | 404
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { slugFromHost } from "@/lib/sites";

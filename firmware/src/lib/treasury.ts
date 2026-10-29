@@ -121,7 +121,7 @@ export async function launch(companyId: string): Promise<Company> {
 
 async function payPlatform(c: Company, amount: number, memo: string) {
   if (amount <= 0 || amount < 1_000_000) return; // dust: stays with the company
-  // a share of Stonkware's revenue funds the flagship (the platform's own token and its agent)
+  // a share of Hypeware's revenue funds the flagship (the platform's own token and its agent)
   const flagship = await getFlagship();
   const share = flagship && flagship.id !== c.id ? Math.floor((amount * flagshipSharePct()) / 100) : 0;
   const toFlagship = share >= 1_000_000 ? share : 0;
@@ -129,7 +129,7 @@ async function payPlatform(c: Company, amount: number, memo: string) {
   if (toFlagship) {
     const sig = await transferFromTreasury(c.treasurySecretEnc, c.treasuryPubkey, flagship!.treasuryPubkey, toFlagship);
     await record(c.id, "PLATFORM_FEE", -toFlagship, `${memo} → $${flagship!.ticker} treasury`, sig);
-    await creditFlagship(toFlagship, `${flagshipSharePct()}% of Stonkware's cut from $${c.ticker}`, sig);
+    await creditFlagship(toFlagship, `${flagshipSharePct()}% of Hypeware's cut from $${c.ticker}`, sig);
   }
   if (toPlatform >= 1_000_000) {
     const sig = await transferFromTreasury(c.treasurySecretEnc, c.treasuryPubkey, env.platformFeeWallet, toPlatform);
@@ -157,7 +157,7 @@ const MIN_CLAIM_LAMPORTS = 2_000_000;
  */
 export async function claimCreatorFees(c: Company): Promise<number> {
   if (c.source === "external") {
-    // launched elsewhere: there's no Stonkware pool to claim from (it's funded by platform revenue)
+    // launched elsewhere: there's no Hypeware pool to claim from (it's funded by platform revenue)
     await db.update(C).set({ lastClaimAt: new Date() }).where(eq(C.id, c.id));
     return 0;
   }
@@ -198,7 +198,7 @@ export async function claimCreatorFees(c: Company): Promise<number> {
   if (claimed <= 0) return 0;
   const sig = sigs.at(-1) ?? null;
   await record(c.id, "FEE_CLAIM", claimed, stonk ? `StonkFun creator fees${c.quoteSymbol && c.quoteSymbol !== "SOL" ? ` (${c.quoteSymbol} → SOL)` : ""}` : c.migrated ? "Meteora trading + LP fees" : "Meteora trading fees (creator share)", sig);
-  // Meteora: Stonkware is paid directly as the DBC partner (no cut here). StonkFun: Stonkware takes CREATOR_FEE_SHARE_BPS.
+  // Meteora: Hypeware is paid directly as the DBC partner (no cut here). StonkFun: Hypeware takes CREATOR_FEE_SHARE_BPS.
   const { platform } = platformCut(claimed, "fees", stonk ? env.creatorFeeShareBps : undefined);
   await payPlatform(c, platform, `${((stonk ? env.creatorFeeShareBps : FEES.platformCreatorFeeBps) / 100).toFixed(0)}% platform share of creator fees`);
   await db.update(C).set({ lifetimeFees: bump(C.lifetimeFees, claimed) }).where(eq(C.id, c.id));

@@ -1,5 +1,5 @@
-// The flagship: Stonkware's own token, launched outside the launchpad (e.g. directly on Meteora),
-// run by an agent like every company, and funded by a share of Stonkware's platform revenue.
+// The flagship: Hypeware's own token, launched outside the launchpad (e.g. directly on Meteora),
+// run by an agent like every company, and funded by a share of Hypeware's platform revenue.
 import { and, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Company } from "@/db/schema";
@@ -9,7 +9,7 @@ const C = schema.companies;
 const L = schema.ledger;
 const PENDING = "pending-";
 
-/** Share of Stonkware's platform revenue routed to the flagship treasury (percent). */
+/** Share of Hypeware's platform revenue routed to the flagship treasury (percent). */
 export const flagshipSharePct = () => Math.min(100, Math.max(0, Number(process.env.FLAGSHIP_SHARE_PCT ?? 50)));
 export const isPrelaunch = (c: Pick<Company, "mintPubkey">) => c.mintPubkey.startsWith(PENDING);
 export const pendingMint = (slug: string) => `${PENDING}${slug}`;
@@ -33,7 +33,7 @@ export async function creditFlagship(lamports: number, memo: string, sig: string
   await db.update(C).set({ sleepingUntil: null }).where(eq(C.id, f.id));
   if (Date.now() - lastNotice > 30 * 60_000) {
     lastNotice = Date.now();
-    await emit(f.id, "TREASURY", `+${(lamports / 1e9).toFixed(4)} SOL from Stonkware's revenue`, memo, sig);
+    await emit(f.id, "TREASURY", `+${(lamports / 1e9).toFixed(4)} SOL from Hypeware's revenue`, memo, sig);
   }
 }
 

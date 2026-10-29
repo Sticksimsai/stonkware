@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Switch a running Stonkware droplet from mock mode to LIVE mode on Solana DEVNET (free test SOL).
+# Switch a running Hypeware droplet from mock mode to LIVE mode on Solana DEVNET (free test SOL).
 # Safe to re-run: it skips anything already done. Your mock database and .env are backed up, not deleted.
 #
 #   sudo FEE_WALLET=<your Phantom address> bash deploy/go-live-devnet.sh
@@ -26,7 +26,7 @@ get_env() { grep -E "^$1=" .env | head -1 | cut -d= -f2- | tr -d '"' || true; }
 say "Backing up .env"
 as cp .env ".env.bak-$(date +%Y%m%d-%H%M%S)"
 
-say "Partner wallet (Stonkware's Meteora fee claimer)"
+say "Partner wallet (Hypeware's Meteora fee claimer)"
 if [ ! -f partner.json ]; then as npm run -s wallet -- new partner.json >/dev/null; fi
 chmod 600 partner.json
 PARTNER="$(as npm run -s wallet -- address partner.json)"
@@ -80,7 +80,7 @@ curl -fsS "http://127.0.0.1:$PORT/api/config" | grep -oE '"(mode|cluster)":"[^"]
 
 cat <<MSG
 
-✓ Stonkware is LIVE on devnet.
+✓ Hypeware is LIVE on devnet.
   • In Phantom: Settings → Developer Settings → Testnet Mode ON (Solana Devnet), then get devnet SOL
     for your own wallet at https://faucet.solana.com.
   • Launch a company on the website. Then generate trading fees with:

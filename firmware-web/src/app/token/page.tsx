@@ -6,8 +6,8 @@ import { ErrorBox, Skeleton } from "@/components/ui";
 
 export default function FirmwarePage() {
   const { data: f, error, reload } = useFlagship();
-  useEffect(() => { if (f) document.title = `$${f.ticker} — the Stonkware token`; }, [f]);
-  if (error && !f) return <div className="wrap py-16"><ErrorBox message={error === "no flagship yet" ? "The Stonkware token page opens soon." : error} onRetry={reload} /></div>;
+  useEffect(() => { if (f) document.title = `$${f.ticker} — the Hypeware token`; }, [f]);
+  if (error && !f) return <div className="wrap py-16"><ErrorBox message={error === "no flagship yet" ? "The Hypeware token page opens soon." : error} onRetry={reload} /></div>;
   if (!f) return <div className="wrap space-y-4 py-10"><Skeleton h={320} /><Skeleton h={420} /></div>;
   return (
     <div className="page-enter">

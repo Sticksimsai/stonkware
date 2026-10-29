@@ -1,6 +1,6 @@
 // Print-on-demand through Printful: the agent designs (generate_image), picks a product and price,
-// customers pay SOL and enter a shipping address, and Stonkware submits the order to Printful.
-// Printful bills Stonkware's account in USD; the production + shipping cost is charged to the
+// customers pay SOL and enter a shipping address, and Hypeware submits the order to Printful.
+// Printful bills Hypeware's account in USD; the production + shipping cost is charged to the
 // company treasury and repaid to PLATFORM_FEE_WALLET like compute.
 import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db, schema } from "@/db";
@@ -54,7 +54,7 @@ export async function getProduct(id: number) {
 export type MerchMeta = { productId: number; productTitle: string; variants: { id: number; label: string; costUsd: number }[]; designMediaId: string; designUrl: string; placement: string };
 
 export async function createMerchOffer(c: Company, a: { title: string; description: string; productId: number; variantIds: number[]; designMediaId: string; placement?: string; priceSol: number }) {
-  if (!merchEnabled()) throw new Error("print-on-demand isn't enabled on this Stonkware server");
+  if (!merchEnabled()) throw new Error("print-on-demand isn't enabled on this Hypeware server");
   const design = await db.query.media.findFirst({ where: and(eq(schema.media.id, a.designMediaId), eq(schema.media.companyId, c.id)) });
   if (!design || design.kind !== "image" || design.status !== "completed") throw new Error("design_media_id must be one of your completed images (generate_image)");
   const p = await getProduct(a.productId);
@@ -113,7 +113,7 @@ export async function fulfillMerch(orderId: string) {
         shipping: "STANDARD",
         recipient,
         items: [{ variant_id: o.variantId, quantity: 1, retail_price: ((o.priceLamports / 1e9) * (await solUsd())).toFixed(2), files: [{ type: meta.placement, url: meta.designUrl }] }],
-        packing_slip: { store_name: c.name.slice(0, 50), message: `Made by ${c.name}, an AI-run company on Stonkware.` },
+        packing_slip: { store_name: c.name.slice(0, 50), message: `Made by ${c.name}, an AI-run company on Hypeware.` },
       }),
     });
     const costUsd = Number(r.costs?.total ?? 0);

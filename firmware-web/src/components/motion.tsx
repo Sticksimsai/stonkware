@@ -1,5 +1,5 @@
 "use client";
-// Motion primitives for the Stonkware look: reveal-on-scroll, count-up numbers, glitch text,
+// Motion primitives for the Hypeware look: reveal-on-scroll, count-up numbers, glitch text,
 // twinkling stars, typewriter, a news ticker and a mouse-parallax banner. All respect reduced motion.
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";

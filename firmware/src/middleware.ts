@@ -1,6 +1,6 @@
 // 1) Company websites: <slug>.<SITES_DOMAIN>/<path>  →  internally served from /s/<slug>/<path>
 // 2) CORS for the API so the separately hosted frontend can call it.
-//    ALLOWED_ORIGINS="https://stonkware.com,*.vercel.app"  ("*" allows any origin)
+//    ALLOWED_ORIGINS="https://hypeware.fun,*.vercel.app"  ("*" allows any origin)
 import { NextResponse, type NextRequest } from "next/server";
 import { slugFromHost } from "@/lib/sites";
 

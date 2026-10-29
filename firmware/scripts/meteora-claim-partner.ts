@@ -1,4 +1,4 @@
-// Claim Stonkware's partner share of trading fees across every pool launched with DBC_CONFIG.
+// Claim Hypeware's partner share of trading fees across every pool launched with DBC_CONFIG.
 //   npm run meteora:claim            (run daily from cron)
 import "./_env";
 import { Connection, PublicKey, SystemProgram, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
@@ -9,7 +9,7 @@ import { partnerKeypair } from "./_env";
   const { dbc } = await import("../src/lib/meteora");
   const configKey = process.env.DBC_CONFIG;
   if (!configKey) {
-    // StonkFun venue: there's no Stonkware partner config to claim from (Stonkware earns a share of creator fees instead)
+    // StonkFun venue: there's no Hypeware partner config to claim from (Hypeware earns a share of creator fees instead)
     console.log((process.env.LAUNCH_VENUE || "stonkfun") === "stonkfun" ? "venue is StonkFun: no partner fees to claim" : "DBC_CONFIG not set");
     process.exit(0);
   }
@@ -39,7 +39,7 @@ import { partnerKeypair } from "./_env";
   if (flagship && share >= 1_000_000) {
     const tx = new Transaction().add(SystemProgram.transfer({ fromPubkey: partner.publicKey, toPubkey: new PublicKey(flagship.treasuryPubkey), lamports: share }));
     const sig = await sendAndConfirmTransaction(conn, tx, [partner], { commitment: "confirmed" });
-    await creditFlagship(share, `${flagshipSharePct()}% of Stonkware's launchpad partner fees`, sig);
+    await creditFlagship(share, `${flagshipSharePct()}% of Hypeware's launchpad partner fees`, sig);
     console.log(`forwarded ${(share / 1e9).toFixed(4)} SOL to $${flagship.ticker} treasury — ${sig}`);
   }
   process.exit(0);

@@ -33,7 +33,7 @@ const set = (k: string) => !!process.env[k] && process.env[k] !== "";
   else add("fail", "revenue", "PLATFORM_FEE_WALLET missing or invalid");
   if (env.launchVenue === "stonkfun") {
     add("ok", "venue", "launches go to StonkFun (Raydium LaunchLab) · no Meteora config or partner wallet needed");
-    add(env.creatorFeeShareBps > 0 ? "ok" : "warn", "revenue", `Stonkware keeps ${env.creatorFeeShareBps / 100}% of each company's creator fees (CREATOR_FEE_SHARE_BPS)`);
+    add(env.creatorFeeShareBps > 0 ? "ok" : "warn", "revenue", `Hypeware keeps ${env.creatorFeeShareBps / 100}% of each company's creator fees (CREATOR_FEE_SHARE_BPS)`);
     try {
       const { launchPairs, launchPricing } = await import("../src/lib/stonkfun");
       const pairs = await launchPairs();
@@ -87,7 +87,7 @@ const set = (k: string) => !!process.env[k] && process.env[k] !== "";
   add(env.higgsfieldKeyId ? "ok" : "warn", "media", env.higgsfieldKeyId ? `Higgsfield set (video ${env.hfVideoEndpoint})` : "Higgsfield not set: no AI images/video");
   add(process.env.PRINTFUL_API_KEY ? "ok" : "warn", "merch", process.env.PRINTFUL_API_KEY ? "Printful set (orders print for real on mainnet)" : "Printful not set: no print-on-demand");
   const { githubEnabled } = await import("../src/lib/selfdev/github");
-  add(githubEnabled() ? "ok" : "warn", "self-dev", githubEnabled() ? `GitHub set for ${process.env.GITHUB_REPO}` : "GITHUB_TOKEN/GITHUB_REPO not set: flagship can't improve Stonkware");
+  add(githubEnabled() ? "ok" : "warn", "self-dev", githubEnabled() ? `GitHub set for ${process.env.GITHUB_REPO}` : "GITHUB_TOKEN/GITHUB_REPO not set: flagship can't improve Hypeware");
 
   // ── database state ──
   const { db, schema } = await import("../src/db");

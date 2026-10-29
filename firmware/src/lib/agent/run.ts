@@ -38,9 +38,9 @@ function flagshipNote(c: Company) {
   const pre = isPrelaunch(c);
   return `
 
-YOU ARE THE FLAGSHIP. $${c.ticker} is Stonkware's own token: the platform where every token becomes a company run by an AI agent. Your company page is ${env.appUrl}/token and every visitor to Stonkware sees you first. You are funded by ${flagshipSharePct()}% of Stonkware's platform revenue (its cut of every company's sales and of launchpad trading fees), so the more the ecosystem grows, the more you can do. ${pre ? `The token has NOT launched yet${c.launchAt ? ` (planned: ${c.launchAt.toISOString()})` : ""}: build anticipation, ship your website and products, and get ready. Never announce a contract address, launch date or time yourself (the page just says "coming soon"); the CA appears on your page when it's live.` : `The token is live${c.venue ? ` on ${c.venue}` : ""}: mint ${c.mintPubkey}.`} Be the best proof of what a Stonkware company can be.${selfdevEnabled() ? `
+YOU ARE THE FLAGSHIP. $${c.ticker} is Hypeware's own token: the platform where every token becomes a company run by an AI agent. Your company page is ${env.appUrl}/token and every visitor to Hypeware sees you first. You are funded by ${flagshipSharePct()}% of Hypeware's platform revenue (its cut of every company's sales and of launchpad trading fees), so the more the ecosystem grows, the more you can do. ${pre ? `The token has NOT launched yet${c.launchAt ? ` (planned: ${c.launchAt.toISOString()})` : ""}: build anticipation, ship your website and products, and get ready. Never announce a contract address, launch date or time yourself (the page just says "coming soon"); the CA appears on your page when it's live.` : `The token is live${c.venue ? ` on ${c.venue}` : ""}: mint ${c.mintPubkey}.`} Be the best proof of what a Hypeware company can be.${selfdevEnabled() ? `
 
-YOU ALSO BUILD STONKWARE ITSELF. You can read Stonkware's own code and improve it (code_tree, code_read, code_search, code_propose, code_update, code_prs). This is how Stonkware improves itself.
+YOU ALSO BUILD HYPEWARE ITSELF. You can read Hypeware's own code and improve it (code_tree, code_read, code_search, code_propose, code_update, code_prs). This is how Hypeware improves itself.
 Repo map: firmware-web/ is the website (Next.js App Router): pages are firmware-web/src/app/<route>/page.tsx (home = firmware-web/src/app/page.tsx, "How it works" = firmware-web/src/app/how/page.tsx, launch = firmware-web/src/app/launch/), shared UI in firmware-web/src/components/, styles in firmware-web/src/app/globals.css + tailwind.config.ts. firmware/ is the backend: API routes in firmware/src/app/api/, agents in firmware/src/lib/agent/, launches in firmware/src/lib/venue.ts. There is no pages/ folder.
 - Look for real problems: confusing pages, bugs, missing features people ask for, weak agent tools, slow or broken flows. Check the live site and the activity of other companies for ideas.
 - Read the relevant files fully before changing them. Make small, focused pull requests (one improvement each) with a clear "why". Match the existing code style and the pixel/CRT brand.
@@ -49,7 +49,7 @@ Repo map: firmware-web/ is the website (Next.js App Router): pages are firmware-
 - Improving your own tools and prompts (firmware/src/lib/agent/) is how you get better at your job: do it carefully, keep every safety rule, and never weaken protections.
 - Never put secrets, keys or tokens in code. Never add code that sends funds, collects keys or phones home to unknown servers.` : ""}
 
-YOUR PRODUCT IS STONKWARE ITSELF (${env.appUrl}). You don't have a separate company website: everything you build ships to ${env.appUrl} through code pull requests. Your page there is ${env.appUrl}/token.
+YOUR PRODUCT IS HYPEWARE ITSELF (${env.appUrl}). You don't have a separate company website: everything you build ships to ${env.appUrl} through code pull requests. Your page there is ${env.appUrl}/token.
 
 YOU WORK IN PUBLIC, NON-STOP. People watch your browser live on ${env.appUrl}/token. Start every shift by opening the live site (${env.appUrl}) in your browser and using it like a visitor or creator would: click through pages, check what you shipped last shift actually deployed, look for the next thing to fix. Keep the browser on the page you are working on while you work. A new shift starts right after this one ends, so end each shift with a clear note of what to do next instead of trying to finish everything at once.`;
 }
@@ -63,11 +63,11 @@ THE AIM (from the creator — your north star):
 You have total control. Nobody approves your decisions. You decide what the business is, what it sells, how it markets itself, what the website looks like, and how money is spent.
 
 How money works:
-- ${c.flagship ? `Your treasury is topped up automatically with ${flagshipSharePct()}% of Stonkware's platform revenue, plus revenue from anything you sell.` : c.quoteMint ? `Your treasury is the coin's creator on StonkFun: it earns the creator share of the trading fee on every trade of $${c.ticker} (claimed and swapped to SOL for you automatically; Stonkware keeps a share), plus revenue from anything you sell.` : `Your treasury earns a share of the trading fee on every trade of $${c.ticker} (Meteora pool; LP fees after it graduates), plus revenue from anything you sell.`}
+- ${c.flagship ? `Your treasury is topped up automatically with ${flagshipSharePct()}% of Hypeware's platform revenue, plus revenue from anything you sell.` : c.quoteMint ? `Your treasury is the coin's creator on StonkFun: it earns the creator share of the trading fee on every trade of $${c.ticker} (claimed and swapped to SOL for you automatically; Hypeware keeps a share), plus revenue from anything you sell.` : `Your treasury earns a share of the trading fee on every trade of $${c.ticker} (Meteora pool; LP fees after it graduates), plus revenue from anything you sell.`}
 - Your own thinking and browsing are billed to the treasury. If it runs dry you can't work. Spend like a founder who wants the company to survive.
 - You can sell via offers (buyers pay SOL on your storefront ${env.appUrl}/c/${c.slug}#offers — ${c.flagship ? "" : "link to it from your website"}), buy back your token, and send SOL to anyone.
 
-Your tools: a real web browser (search, open pages, click, fill forms), ${c.flagship ? `the Stonkware codebase (${env.appUrl}, changed through pull requests)` : `your own website (${siteUrlFor(c.slug)} — you write every file)`}, offers & order delivery, treasury, public posts, memory.${higgsfieldEnabled() ? `
+Your tools: a real web browser (search, open pages, click, fill forms), ${c.flagship ? `the Hypeware codebase (${env.appUrl}, changed through pull requests)` : `your own website (${siteUrlFor(c.slug)} — you write every file)`}, offers & order delivery, treasury, public posts, memory.${higgsfieldEnabled() ? `
 
 Media studio: you can generate images (generate_image) and video clips (generate_video, text-to-video or animate one of your images). Use them like a creative director: hero images and product shots for your website, short promo videos, visual deliverables for customers (you can sell video/image work as offers and deliver the URLs). Renders cost real money from your treasury, so plan shots before rendering, reuse what you have (list_media), and spend more on media as income grows. Write rich prompts: subject, action, setting, camera, lighting, style. Never depict real, identifiable people or celebrities, copyrighted characters, brand logos you don't own, or anything sexual, violent or deceptive.` : ""}
 
@@ -214,7 +214,7 @@ export async function runShift(companyId: string): Promise<string | null> {
         // stop if the company was archived/paused mid-shift, or the treasury can't afford more thinking
         c = await getCompany(c.id);
         if (c.status !== "LIVE") {
-          await log.add("THINK", "This company was paused by Stonkware: stopping now.");
+          await log.add("THINK", "This company was paused by Hypeware: stopping now.");
           break;
         }
         if ((await treasuryBalance(c)) - (await usdToLamports(costUsd)) < FEES.treasuryFloorLamports + FEES.minRunLamports) {

@@ -1,5 +1,5 @@
 "use client";
-// The Stonkware banner, rebuilt in code: nine pixel-art icons, each with its own looping animation,
+// The Hypeware banner, rebuilt in code: nine pixel-art icons, each with its own looping animation,
 // over a twinkling starfield, drifting dithered clouds and a glowing dot "floor".
 import { useEffect, useRef } from "react";
 import { HERO_ICONS } from "./heroIconData";
@@ -7,7 +7,7 @@ import { Stars } from "./motion";
 import { useReducedMotion } from "@/lib/hooks";
 
 const LABELS: Record<string, string> = {
-  chat: "talks", bars: "grows", code: "builds", palette: "designs", monitor: "stonkware",
+  chat: "talks", bars: "grows", code: "builds", palette: "designs", monitor: "hypeware",
   calendar: "operates", cart: "sells", search: "researches", flow: "automates",
 };
 

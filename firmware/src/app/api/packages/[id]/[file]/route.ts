@@ -10,7 +10,7 @@ export async function GET(req: Request, { params }: { params: { id: string; file
   const pkg = await db.query.packages.findFirst({ where: eq(schema.packages.id, params.id) });
   if (!pkg || pkg.version === 0) return new Response("not found", { status: 404 });
   const t = new URL(req.url).searchParams.get("t");
-  if (pkg.visibility !== "public" && !verifyToken(pkg.id, t)) return new Response("this download is for customers: buy it on Stonkware", { status: 403 });
+  if (pkg.visibility !== "public" && !verifyToken(pkg.id, t)) return new Response("this download is for customers: buy it on Hypeware", { status: 403 });
   const zip = await buildZip(pkg);
   await db.update(schema.packages).set({ downloads: sql`${schema.packages.downloads} + 1` }).where(eq(schema.packages.id, pkg.id));
   return new Response(zip, {

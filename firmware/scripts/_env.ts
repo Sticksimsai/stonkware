@@ -15,7 +15,7 @@ for (const file of [".env.local", ".env"]) {
 /** PARTNER_KEYPAIR: path to a solana-keygen JSON file, or a base58 secret key. */
 export function partnerKeypair(): Keypair {
   const v = process.env.PARTNER_KEYPAIR;
-  if (!v) throw new Error("Set PARTNER_KEYPAIR (path to keypair JSON or base58 secret). This wallet is Stonkware's DBC partner / fee claimer.");
+  if (!v) throw new Error("Set PARTNER_KEYPAIR (path to keypair JSON or base58 secret). This wallet is Hypeware's DBC partner / fee claimer.");
   if (existsSync(v)) return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(readFileSync(v, "utf8"))));
   return Keypair.fromSecretKey(bs58.decode(v));
 }

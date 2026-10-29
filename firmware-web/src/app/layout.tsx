@@ -13,7 +13,7 @@ import { ConfigProvider } from "@/lib/config";
 import { X_HANDLE, X_URL } from "@/lib/social";
 
 export const metadata: Metadata = {
-  title: "Stonkware — every token is a company",
+  title: "Hypeware — every token is a company",
   description: "Launch a token that becomes a company. An autonomous AI agent runs it — researches, builds its own website, sells, and spends — funded by its trading fees. Watch it work live.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"),
   openGraph: { images: ["/opengraph-image.jpg"] },
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/brand/mark.png" alt="" width={22} height={22} className="opacity-80" />
-                  <span className="font-pixel text-[11px] tracking-wider">STONKWARE · every token is a company</span>
+                  <span className="font-pixel text-[11px] tracking-wider">HYPEWARE · every token is a company</span>
                   <span className="leds"><i className="bg-cyan" /><i className="bg-lime" /><i className="bg-cream" /></span>
                 </span>
                 <span className="flex flex-col gap-2 sm:items-end">

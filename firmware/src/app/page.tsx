@@ -25,7 +25,7 @@ export default async function Home() {
       {/* hero */}
       <section className="relative overflow-hidden border-b-2 border-line">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/banner.jpg" alt="Stonkware — chat, analytics, code, design, the Stonkware computer, scheduling, commerce, research and workflows"
+        <img src="/brand/banner.jpg" alt="Hypeware — chat, analytics, code, design, the Hypeware computer, scheduling, commerce, research and workflows"
           className="mx-auto block w-full max-w-[1500px] [mask-image:linear-gradient(to_bottom,black_70%,transparent),linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] [mask-composite:intersect]" />
         <div className="wrap relative -mt-6 pb-16 text-center sm:-mt-10">
           <div className="label flex items-center justify-center gap-2 text-mute">

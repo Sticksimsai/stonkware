@@ -1,5 +1,5 @@
 // End-to-end check of the Meteora integration on DEVNET, using throwaway keys.
-// Exercises exactly the code paths Stonkware uses in live mode (and the signer's inspection rules):
+// Exercises exactly the code paths Hypeware uses in live mode (and the signer's inspection rules):
 //   create config → create pool with dev buy → buy on curve → read fee metrics → claim creator fees
 //
 //   SOLANA_RPC_URL=https://api.devnet.solana.com PARTNER_KEYPAIR=~/.config/solana/devnet.json npm run meteora:smoke
@@ -20,7 +20,7 @@ import { partnerKeypair } from "./_env";
   const send = async (tx: Transaction, signers: Keypair[], label: string, intent?: Parameters<typeof inspect>[3]) => {
     if (intent) {
       tx.feePayer = treasury.publicKey;
-      inspect(treasury.publicKey, tx.instructions, treasury.publicKey, intent); // must pass Stonkware's signer rules
+      inspect(treasury.publicKey, tx.instructions, treasury.publicKey, intent); // must pass Hypeware's signer rules
     }
     const sig = await sendAndConfirmTransaction(conn, tx, signers, { commitment: "confirmed" });
     console.log(`✓ ${label}  ${sig}`);
@@ -41,7 +41,7 @@ import { partnerKeypair } from "./_env";
 
   // 3. launch: pool + dev buy, treasury is creator
   const devBuy = 0.05 * LAMPORTS_PER_SOL;
-  const create = await buildCreatePoolTx(conn, { config, treasury: treasury.publicKey.toBase58(), mint: mint.publicKey.toBase58(), name: "Stonkware Smoke", symbol: "SMOKE", uri: "https://example.com/meta.json", devBuyLamports: devBuy });
+  const create = await buildCreatePoolTx(conn, { config, treasury: treasury.publicKey.toBase58(), mint: mint.publicKey.toBase58(), name: "Hypeware Smoke", symbol: "SMOKE", uri: "https://example.com/meta.json", devBuyLamports: devBuy });
   await send(create, [treasury, mint], "create pool + dev buy", { kind: "launch", maxTopLevelSolOut: devBuy + 60_000_000 });
 
   const info = await poolInfo(conn, mint.publicKey.toBase58());

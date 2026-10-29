@@ -1,4 +1,4 @@
-// Company websites live on their own subdomain: https://<slug>.<SITES_DOMAIN> (e.g. brew.stonkware.com).
+// Company websites live on their own subdomain: https://<slug>.<SITES_DOMAIN> (e.g. brew.hypeware.fun).
 // Without SITES_DOMAIN they fall back to <backend>/s/<slug>. Edge-safe (used by middleware).
 
 export const RESERVED_SUBDOMAINS = new Set([

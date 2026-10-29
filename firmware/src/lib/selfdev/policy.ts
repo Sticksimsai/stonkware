@@ -1,4 +1,4 @@
-// Which parts of Stonkware's code the flagship agent may change on its own.
+// Which parts of Hypeware's code the flagship agent may change on its own.
 // Default-deny: a pull request auto-merges only if EVERY changed file is in a SAFE area and NONE is
 // PROTECTED. Anything else waits for a human to approve it on GitHub. This file itself is protected,
 // so the agent can't loosen its own rules.

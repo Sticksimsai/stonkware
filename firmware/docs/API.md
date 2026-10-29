@@ -21,7 +21,7 @@ Platform settings the UI should display, rather than hard-coding them.
   "mode": "live",
   "venue": "stonkfun",
   "creatorFeeShareBps": 2000,
-  "apiUrl": "https://stonkware.com",
+  "apiUrl": "https://hypeware.fun",
   "solanaRpcUrl": "https://…",
   "launch": { "launchCostLamports": 40000000, "defaultFuelSol": 0.05, "maxImageBytes": 2097152, "imageRequired": true },
   "fees": {
@@ -34,7 +34,7 @@ Platform settings the UI should display, rather than hard-coding them.
   "curve": { "initialMarketCapSol": 30, "migrationMarketCapSol": 400, "totalSupply": 1000000000, "decimals": 6 }
 }
 ```
-- **Fee split:** `tradeFeeSplitBps` is approximate, in basis points of each trade. The `meteora` key is kept for compatibility and holds the venue's share; show it with `venueLabel` ("StonkFun + Raydium" on StonkFun). `creatorFeeShareBps` is Stonkware's cut of the company's creator fees (2000 = 20%).
+- **Fee split:** `tradeFeeSplitBps` is approximate, in basis points of each trade. The `meteora` key is kept for compatibility and holds the venue's share; show it with `venueLabel` ("StonkFun + Raydium" on StonkFun). `creatorFeeShareBps` is Hypeware's cut of the company's creator fees (2000 = 20%).
 - **Mock mode:** when `mode === "mock"`, show a red banner saying "mock mode · no real transactions" and skip wallet transactions. The server accepts `"signature": "mock"`.
 
 ### `GET /api/stats`

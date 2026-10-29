@@ -1,4 +1,4 @@
-// Withdraw Stonkware's partner-fee revenue from the partner wallet to your own wallet.
+// Withdraw Hypeware's partner-fee revenue from the partner wallet to your own wallet.
 //   npm run withdraw:partner                     preview (sends nothing)
 //   npm run withdraw:partner -- --send           send everything above the reserve to PLATFORM_FEE_WALLET
 //   npm run withdraw:partner -- --send --to <address> --keep 0.05

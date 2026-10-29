@@ -5,7 +5,7 @@ import bs58 from "bs58";
 import type { Company } from "@/db/schema";
 import { isLive } from "./env";
 
-export const creatorMessage = (action: string, ticker: string, ts: number) => `Stonkware: ${action} for $${ticker}\ntime: ${ts}`;
+export const creatorMessage = (action: string, ticker: string, ts: number) => `Hypeware: ${action} for $${ticker}\ntime: ${ts}`;
 
 export function verifyCreator(c: Company, p: { wallet?: string; signature?: string; ts?: number; action: string }) {
   if (!isLive() && process.env.ALLOW_MOCK_CONNECT === "1" && p.signature === "mock") return; // local dev only

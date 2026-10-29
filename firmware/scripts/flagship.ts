@@ -1,13 +1,13 @@
-// Set up Stonkware's own token (the flagship) before it launches, then attach the contract address on launch day.
+// Set up Hypeware's own token (the flagship) before it launches, then attach the contract address on launch day.
 //
-//   npm run flagship -- create --name "Stonkware" --ticker FIRM --model anthropic/claude-sonnet-4.5 \
+//   npm run flagship -- create --name "Hypeware" --ticker FIRM --model anthropic/claude-sonnet-4.5 \
 //        --creator <your wallet> --aim-file aim.txt [--image logo.png] [--venue Meteora] [--launch-at 2026-10-20T16:00:00Z]
 //   npm run flagship -- set-ca <mint address> [--venue Meteora]
 //   npm run flagship -- update [--aim-file f | --aim "…"] [--model id] [--name …] [--image f] [--launch-at ISO|none] [--venue …] [--creator …]
 //   npm run flagship -- status
 //
 // The flagship's agent starts working as soon as it's created (pre-launch), funded by FLAGSHIP_SHARE_PCT
-// of Stonkware's platform revenue. Nothing is printed that could leak a key.
+// of Hypeware's platform revenue. Nothing is printed that could leak a key.
 import "./_env";
 import { readFileSync, existsSync } from "fs";
 
@@ -73,7 +73,7 @@ function launchAtArg() {
     console.log(`✓ flagship $${ticker} created (page: ${env.appUrl}/token)`);
     console.log(`  treasury: ${treasury.pubkey}`);
     console.log(`  model: ${model.label}`);
-    console.log(`  funding: ${flagshipSharePct()}% of Stonkware's platform revenue (FLAGSHIP_SHARE_PCT). Send some SOL to the treasury to get it started.`);
+    console.log(`  funding: ${flagshipSharePct()}% of Hypeware's platform revenue (FLAGSHIP_SHARE_PCT). Send some SOL to the treasury to get it started.`);
     console.log("  on launch day: npm run flagship -- set-ca <mint>");
   } else if (cmd === "set-ca") {
     if (!existing) throw new Error("create the flagship first");

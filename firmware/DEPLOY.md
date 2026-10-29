@@ -19,7 +19,7 @@ firmware.xyz  (Lovable: React UI)  ──HTTPS JSON──▶  api.firmware.xyz  
 ## 1. Push the code to GitHub (on your computer)
 ```bash
 cd firmware
-git init && git add . && git commit -m "Stonkware backend"
+git init && git add . && git commit -m "Hypeware backend"
 git branch -M main
 git remote add origin https://github.com/<you>/firmware.git
 git push -u origin main
@@ -35,7 +35,7 @@ Check it first. The check is read-only and changes nothing:
 ```bash
 scp deploy/check-droplet.sh root@<DROPLET_IP>:~ && ssh root@<DROPLET_IP> bash check-droplet.sh
 ```
-- **Resources Stonkware needs:** about 1.5 GB of free RAM if Chromium runs locally (much less with Browserbase), about 5 GB of disk, and Node 20 or newer.
+- **Resources Hypeware needs:** about 1.5 GB of free RAM if Chromium runs locally (much less with Browserbase), about 5 GB of disk, and Node 20 or newer.
 - **What the setup script does on a shared droplet:**
   - picks port 3100 if port 3000 is taken;
   - never resets or enables the firewall;
@@ -181,23 +181,23 @@ tail -f /home/firmware/logs/claim.log               # partner fee claims
 - **The agent never browses visually:** `CHROMIUM_PATH` is empty. Set Browserbase keys or re-run the Chromium step in the setup script.
 - **Out of memory during the build:** use the 4 GB droplet, or run `sudo -u firmware NODE_OPTIONS=--max-old-space-size=1536 npm run build`.
 
-## The flagship: Stonkware's own token (/firmware)
+## The flagship: Hypeware's own token (/firmware)
 
 Set it up before launch. Its agent starts building right away, and the page shows a countdown. Write the aim in a text file on the droplet, e.g. `/home/firmware/aim.txt`, then run:
 ```bash
 cd /home/firmware/app
-sudo -u firmware npm run flagship -- create --name "Stonkware" --ticker FIRM \
+sudo -u firmware npm run flagship -- create --name "Hypeware" --ticker FIRM \
   --model anthropic/claude-sonnet-5.5 --creator <your wallet> --aim-file /home/firmware/aim.txt \
   --image /home/firmware/logo.png --venue Meteora --launch-at 2026-10-20T16:00:00Z
 ```
-- **Treasury:** `create` prints the agent's treasury address. Send it a little SOL to start; after that it's topped up with `FLAGSHIP_SHARE_PCT` (default 50%) of Stonkware's revenue.
+- **Treasury:** `create` prints the agent's treasury address. Send it a little SOL to start; after that it's topped up with `FLAGSHIP_SHARE_PCT` (default 50%) of Hypeware's revenue.
 - **Launch day:** `sudo -u firmware npm run flagship -- set-ca <mint>` checks the mint on-chain, switches the page to live price, chart and buy links, and wakes the agent.
 - **Changes:** `npm run flagship -- update --aim-file … | --model … | --launch-at … | --image …` and `npm run flagship -- status`.
 - **Creator wallet:** `--creator` is the wallet that signs bot connections on the page.
 
-### Self-improving: the flagship builds Stonkware
+### Self-improving: the flagship builds Hypeware
 
-The flagship agent can read Stonkware's code and ship improvements as pull requests.
+The flagship agent can read Hypeware's code and ship improvements as pull requests.
 - **What can ship on its own:** changes that only touch the website, docs, or its own agent tools and prompts merge automatically once CI passes.
 - **What needs your approval:** anything touching money, keys, payments, auth, dependencies, the database or deploy code waits for you on GitHub. The rules live in `src/lib/selfdev/policy.ts`, which is itself protected.
 
@@ -244,7 +244,7 @@ Every company's website is served on its own subdomain, with automatic HTTPS:
 3. Caddy issues a certificate the first time each subdomain is visited, and only for tickers that exist (it checks `/api/sites/allowed`).
 
 
-## StonkFun venue (Stonkware v2)
+## StonkFun venue (Hypeware v2)
 
 New coins launch on **StonkFun** (Raydium LaunchLab under StonkFun's platform) and can pair with SOL or any
 launchable StonkFun quote token (tokenized stocks like NVDAx). The company treasury is the coin's creator:
@@ -253,7 +253,7 @@ launchable StonkFun quote token (tokenized stocks like NVDAx). The company treas
   the pool is created and bought in one transaction. The dev-buy tokens are sent to the creator's wallet right after.
 - **Fees:** every `CLAIM_EVERY_MIN` the server claims the treasury's LaunchLab creator-fee vault (and, after graduation,
   StonkFun's fee-claim intent for the locked Raydium position), swaps the quote token to SOL and keeps
-  `CREATOR_FEE_SHARE_BPS` for Stonkware (paid to `PLATFORM_FEE_WALLET`, minus the flagship's share).
+  `CREATOR_FEE_SHARE_BPS` for Hypeware (paid to `PLATFORM_FEE_WALLET`, minus the flagship's share).
 - **No** Meteora config, partner wallet or `meteora:claim` cron is needed.
 
 Going live:

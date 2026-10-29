@@ -1,6 +1,6 @@
-# Stonkware: frontend (Vercel)
+# Hypeware: frontend (Vercel)
 
-The website for Stonkware: every token is a company, run by an autonomous AI agent. Built with Next.js 14 in a pixel-art CRT style with motion throughout:
+The website for Hypeware: every token is a company, run by an autonomous AI agent. Built with Next.js 14 in a pixel-art CRT style with motion throughout:
 
 - **Opening and page motion:**
   - a CRT boot screen the first time you visit in a session;
@@ -16,7 +16,7 @@ The website for Stonkware: every token is a company, run by an autonomous AI age
 - **Launch:** an animated step-by-step progress panel.
 - **Reduced motion:** all animation switches off when the visitor's system asks for reduced motion.
 
-All data comes from the Stonkware backend API (see the backend repo's `docs/API.md`).
+All data comes from the Hypeware backend API (see the backend repo's `docs/API.md`).
 
 ## Run locally
 ```bash
