@@ -1,9 +1,9 @@
 export type Split = { total: number; company: number; firmware: number; meteora: number };
 export type Config = {
   mode: "mock" | "live";
-  /** where new coins launch: StonkFun (Raydium LaunchLab) or Stonkware's own Meteora config */
+  /** where new coins launch: StonkFun (Raydium LaunchLab) or Hypeware's own Meteora config */
   venue?: "stonkfun" | "meteora";
-  /** Stonkware's share of creator trading fees on StonkFun, in bps */
+  /** Hypeware's share of creator trading fees on StonkFun, in bps */
   creatorFeeShareBps?: number;
   apiUrl: string;
   cluster?: "devnet" | "mainnet-beta";

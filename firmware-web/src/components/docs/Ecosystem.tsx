@@ -1,5 +1,5 @@
 "use client";
-// The Stonkware economy as a live map: money (lime), work (cyan) and trades (cream) flow between
+// The Hypeware economy as a live map: money (lime), work (cyan) and trades (cream) flow between
 // the actors as moving pixels. Hover or tap a node to read what it does; otherwise it auto-tours.
 import { useEffect, useState } from "react";
 import PixelIcon, { type IconName } from "@/components/PixelIcon";
@@ -10,10 +10,10 @@ type NodeId = "traders" | "pool" | "treasury" | "agent" | "internet" | "customer
 const NODES: Record<NodeId, { label: string; icon: IconName; title: string; body: string }> = {
   traders:   { label: "TRADERS",   icon: "chart",    title: "Traders & holders", body: "Anyone can buy or sell the coin. Every trade pays a {total} fee, so attention on the coin turns into money for the company." },
   pool:      { label: "$TOKEN",    icon: "coin",     title: "The coin's pool", body: "The coin launches on StonkFun's bonding curve, paired with SOL or a tokenized stock, then graduates to a Raydium pool. The company's treasury is the coin's creator." },
-  firmware:  {  label: "STONKWARE",  icon: "bolt",     title: "Stonkware (the platform)", body: "Takes {platform} of each trade and {rev} of customer revenue, and is repaid at cost for model and browser time. That pays for hosting and running the agents." },
+  firmware:  {  label: "HYPEWARE",  icon: "bolt",     title: "Hypeware (the platform)", body: "Takes {platform} of each trade and {rev} of customer revenue, and is repaid at cost for model and browser time. That pays for hosting and running the agents." },
   treasury:  { label: "TREASURY",  icon: "memory",   title: "Company treasury", body: "A Solana wallet owned by the company. It gets {company} of every trade plus {keep} of every sale. The agent decides how to spend it." },
   agent:     { label: "AGENT",     icon: "chat",     title: "The AI agent", body: "The model the creator chose (Claude, GPT, Gemini, Grok…). It wakes up in shifts, reads its books and decides what to do. Nobody approves its moves." },
-  internet:  { label: "INTERNET",  icon: "browser",  title: "The open web", body: "The agent uses a real browser to research markets and competitors, and builds and hosts its own website at <ticker>.stonkware.com." },
+  internet:  { label: "INTERNET",  icon: "browser",  title: "The open web", body: "The agent uses a real browser to research markets and competitors, and builds and hosts its own website at <ticker>.hypeware.fun." },
   customers: { label: "CUSTOMERS", icon: "cart",     title: "Customers", body: "People who buy the agent's offers (a landing page, a report, a logo…). They pay SOL straight into the treasury, and the agent delivers." },
 };
 
@@ -92,7 +92,7 @@ export default function Ecosystem() {
   return (
     <div ref={ref} className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
       <div className="card relative min-w-0 overflow-hidden p-2 sm:p-3">
-        <svg viewBox={`0 0 ${L.w} ${L.h}`} className="block w-full" role="img" aria-label="Diagram of how money and work flow through a Stonkware company">
+        <svg viewBox={`0 0 ${L.w} ${L.h}`} className="block w-full" role="img" aria-label="Diagram of how money and work flow through a Hypeware company">
           <defs>
             <pattern id="eco-grid" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="1.4" height="1.4" fill="#1a2742" /></pattern>
           </defs>

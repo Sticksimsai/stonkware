@@ -1,5 +1,5 @@
 // Serves each company's agent-built website at /s/<slug>/<path>.
-// Sandboxed via CSP so agent-written scripts run in an opaque origin and can't touch Stonkware.
+// Sandboxed via CSP so agent-written scripts run in an opaque origin and can't touch Hypeware.
 import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { env } from "@/lib/env";
@@ -14,7 +14,7 @@ const placeholder = (name: string) => `<!doctype html><meta charset="utf-8"><met
 export async function GET(req: Request, { params }: { params: { slug: string; path?: string[] } }) {
   const c = await db.query.companies.findFirst({ where: eq(schema.companies.slug, params.slug), columns: { id: true, name: true, status: true, flagship: true } });
   if (!c || c.status === "ARCHIVED") return new Response("not found", { status: 404 });
-  // the flagship's "website" is Stonkware itself
+  // the flagship's "website" is Hypeware itself
   if (c.flagship) return Response.redirect(`${env.appUrl.replace(/\/+$/, "")}/token`, 302);
   let path = (params.path ?? []).join("/") || "index.html";
   if (path.endsWith("/")) path += "index.html";

@@ -1,4 +1,4 @@
-// Stonkware launchpad economics on Meteora DBC. Server-side (reads env); pass values to client components as props.
+// Hypeware launchpad economics on Meteora DBC. Server-side (reads env); pass values to client components as props.
 const num = (name: string, fallback: number) => {
   const v = Number(process.env[name]);
   return process.env[name] && Number.isFinite(v) ? v : fallback;
@@ -11,7 +11,7 @@ export const LAUNCHPAD = {
   /** Anti-sniper: fee starts here and decays linearly to feeBps. */
   startFeeBps: num("DBC_START_FEE_BPS", 5000),
   antiSniperSeconds: num("DBC_ANTI_SNIPER_SECONDS", 120),
-  /** % of the (post-Meteora) trading fee that goes to the company treasury; the rest to Stonkware. */
+  /** % of the (post-Meteora) trading fee that goes to the company treasury; the rest to Hypeware. */
   creatorSharePct: num("DBC_CREATOR_SHARE_PCT", 75),
   /** Meteora's protocol cut of DBC trading fees. */
   meteoraPct: 20,

@@ -67,7 +67,7 @@ const info = (m: string) => console.log(`  ${m}`);
   // 4. build + inspect + simulate
   const devBuyB = isWsol(mintB) ? 10_000_000n : 0n;
   const { tx } = buildLaunchTx({ pricing, treasury: payer, mintA, mintB, mintProgramB: await mintProgram(conn, mintB), name: "Probe", symbol: "PROBE", uri: "https://example.com/probe.json", devBuyB, microLamports: 50_000 });
-  try { inspect(payer, tx.instructions, payer, { kind: "launch", maxTopLevelSolOut: 70_000_000 }); ok("Stonkware's signer would accept this launch transaction"); }
+  try { inspect(payer, tx.instructions, payer, { kind: "launch", maxTopLevelSolOut: 70_000_000 }); ok("Hypeware's signer would accept this launch transaction"); }
   catch (e) { bad(`signer refuses the launch tx: ${(e as Error).message}`); failures++; }
   tx.feePayer = payer;
   tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash;

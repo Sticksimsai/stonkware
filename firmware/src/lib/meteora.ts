@@ -1,5 +1,5 @@
-// Meteora integration: Stonkware runs its own launchpad on the Dynamic Bonding Curve (DBC).
-//  • Stonkware is the DBC *partner*: one config (curve + fees) shared by every company.
+// Meteora integration: Hypeware runs its own launchpad on the Dynamic Bonding Curve (DBC).
+//  • Hypeware is the DBC *partner*: one config (curve + fees) shared by every company.
 //  • Each company's treasury is the pool *creator*: it receives the creator share of trading fees.
 //  • Pools graduate to DAMM v2; the treasury then earns LP fees from its locked position.
 import { Connection, PublicKey, type Transaction, VersionedTransaction } from "@solana/web3.js";
@@ -14,7 +14,7 @@ import { LAUNCHPAD, feeSplitBps } from "./launchpad";
 export const WSOL = new PublicKey("So11111111111111111111111111111111111111112");
 export { LAUNCHPAD, feeSplitBps };
 
-/** The curve/fee/migration config every Stonkware token launches with. */
+/** The curve/fee/migration config every Hypeware token launches with. */
 export function buildFirmwareConfig(): ConfigParameters {
   return buildCurveWithMarketCap({
     token: {

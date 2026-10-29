@@ -3,7 +3,7 @@
 
 export const FEES = {
   /**
-   * Extra platform share taken from claimed creator fees. 0 because on Meteora Stonkware is the DBC
+   * Extra platform share taken from claimed creator fees. 0 because on Meteora Hypeware is the DBC
    * *partner* and earns its share of every trade directly (see LAUNCHPAD in src/lib/meteora.ts).
    */
   platformCreatorFeeBps: 0,

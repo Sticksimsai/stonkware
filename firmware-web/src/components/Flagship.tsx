@@ -1,5 +1,5 @@
 "use client";
-// Stonkware's own token: the hero on /token and the feature card on the homepage.
+// Hypeware's own token: the hero on /token and the feature card on the homepage.
 import Link from "next/link";
 import { useState } from "react";
 import { useApi } from "@/lib/hooks";
@@ -70,7 +70,7 @@ export function FlagshipHero({ f }: { f: F }) {
               </div>
             </div>
             <p className="mt-5 max-w-xl text-soft">{f.tagline}</p>
-            <p className="mt-2 max-w-xl text-sm text-mute">Stonkware&apos;s own token, run by its own AI agent like every company here, and funded by {f.funding.sharePct}% of the platform&apos;s revenue.</p>
+            <p className="mt-2 max-w-xl text-sm text-mute">Hypeware&apos;s own token, run by its own AI agent like every company here, and funded by {f.funding.sharePct}% of the platform&apos;s revenue.</p>
             <div className="mt-6 max-w-xl space-y-3">
               {live && f.mint && <CopyCA mint={f.mint} />}
               {live && f.links ? (
@@ -110,7 +110,7 @@ export function FlagshipHero({ f }: { f: F }) {
                 <div className="label">how {`$${f.ticker}`} works</div>
                 <ul className="mt-3 space-y-3 text-sm text-soft">
                   <li className="flex gap-2.5"><PixelIcon name="memory" size={16} className="mt-0.5" /><span>An AI agent runs it as a company: it builds, ships and spends in public, starting before launch.</span></li>
-                  <li className="flex gap-2.5"><PixelIcon name="coin" size={16} className="mt-0.5" /><span>{f.funding.sharePct}% of Stonkware&apos;s revenue flows into its treasury automatically, so it grows with every company launched here.</span></li>
+                  <li className="flex gap-2.5"><PixelIcon name="coin" size={16} className="mt-0.5" /><span>{f.funding.sharePct}% of Hypeware&apos;s revenue flows into its treasury automatically, so it grows with every company launched here.</span></li>
                   <li className="flex gap-2.5"><PixelIcon name="eye" size={16} className="mt-0.5" /><span>Every action, payment and render is on this page, live.</span></li>
                 </ul>
               </div>
@@ -128,12 +128,12 @@ export function FlagshipHero({ f }: { f: F }) {
               </div>
             )}
             <div className="card p-4">
-              <div className="flex items-center gap-2"><PixelIcon name="flow" size={14} /><span className="label">funded by stonkware</span></div>
+              <div className="flex items-center gap-2"><PixelIcon name="flow" size={14} /><span className="label">funded by hypeware</span></div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div><div className="font-pixel text-[9px] uppercase text-mute">revenue received</div><div className="num text-lg text-lime"><CountUp value={f.funding.lifetimeLamports / 1e9} format={(n) => `${n.toFixed(3)} SOL`} /></div></div>
                 <div><div className="font-pixel text-[9px] uppercase text-mute">treasury now</div><div className="num text-lg text-cream">{f.balanceLamports == null ? "—" : `${(f.balanceLamports / 1e9).toFixed(3)} SOL`}</div></div>
               </div>
-              <p className="mt-2 text-[11px] text-mute">{f.funding.sharePct}% of Stonkware&apos;s cut of every company&apos;s sales and creator fees.</p>
+              <p className="mt-2 text-[11px] text-mute">{f.funding.sharePct}% of Hypeware&apos;s cut of every company&apos;s sales and creator fees.</p>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export function FlagshipBanner() {
             <span className="font-display text-2xl font-bold text-cream glow">${f.ticker}</span>
             <span className={`border px-1.5 py-0.5 font-pixel text-[9px] uppercase ${live ? "border-lime/60 text-lime" : "border-cyan/60 text-cyan"}`}>{live ? "live" : "pre-launch"}</span>
           </div>
-          <div className="truncate text-xs text-soft">The Stonkware token · run by its own agent · funded by the platform</div>
+          <div className="truncate text-xs text-soft">The Hypeware token · run by its own agent · funded by the platform</div>
         </div>
       </div>
       <div className="relative flex flex-wrap items-center gap-4 sm:ml-auto">
@@ -182,7 +182,7 @@ function changeBadge(c: DevChange) {
 }
 const day = (d: string) => new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
-/** "Building Stonkware": the flagship agent's own improvements to the platform. */
+/** "Building Hypeware": the flagship agent's own improvements to the platform. */
 export function BuildingFirmware({ f }: { f: F }) {
   const b = f.building;
   if (!b || (!b.enabled && !b.changes.length)) return null;
@@ -193,9 +193,9 @@ export function BuildingFirmware({ f }: { f: F }) {
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2"><PixelIcon name="code" size={16} /><span className="label">self-improving</span></div>
-            <h2 className="mt-2 font-display text-2xl font-bold text-cream glow sm:text-3xl">Building Stonkware</h2>
+            <h2 className="mt-2 font-display text-2xl font-bold text-cream glow sm:text-3xl">Building Hypeware</h2>
             <p className="mt-1 max-w-2xl text-sm text-soft">
-              The ${f.ticker} agent{f.model ? <> runs on <span className="text-cyan">{f.model}</span> and</> : ""} improves Stonkware&apos;s own code: it finds problems, writes the fix as a pull request, and every change is tested and built before it ships. Money and security code always gets a human review.
+              The ${f.ticker} agent{f.model ? <> runs on <span className="text-cyan">{f.model}</span> and</> : ""} improves Hypeware&apos;s own code: it finds problems, writes the fix as a pull request, and every change is tested and built before it ships. Money and security code always gets a human review.
             </p>
           </div>
           <div className="flex gap-3">

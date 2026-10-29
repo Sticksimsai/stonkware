@@ -1,4 +1,4 @@
-// Stonkware data model (Drizzle + libSQL/SQLite).
+// Hypeware data model (Drizzle + libSQL/SQLite).
 // All SOL amounts are integer lamports (safe up to ~9M SOL in a JS number).
 import { sqliteTable, text, integer, blob, real, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
@@ -37,9 +37,9 @@ export const companies = sqliteTable(
     treasurySecretEnc: text("treasury_secret_enc").notNull(),
     mintPubkey: text("mint_pubkey").notNull().unique(),
     mintSecretEnc: text("mint_secret_enc"),
-    /** launchpad (launched through Stonkware) | external (e.g. the platform token, launched elsewhere) */
+    /** launchpad (launched through Hypeware) | external (e.g. the platform token, launched elsewhere) */
     source: text("source").notNull().default("launchpad"),
-    /** The platform's own token: dedicated /token page, funded by a share of Stonkware's revenue. */
+    /** The platform's own token: dedicated /token page, funded by a share of Hypeware's revenue. */
     flagship: integer("flagship", { mode: "boolean" }).notNull().default(false),
     /** external tokens: where it trades (e.g. "Meteora") and the planned launch time (countdown) */
     venue: text("venue"),
@@ -223,7 +223,7 @@ export const ledger = sqliteTable(
   (t) => ({ byCompany: index("ledger_company_idx").on(t.companyId, t.createdAt) }),
 );
 
-/** Images and videos the agent generated (Higgsfield). Files are downloaded and served by Stonkware. */
+/** Images and videos the agent generated (Higgsfield). Files are downloaded and served by Hypeware. */
 export const media = sqliteTable(
   "media",
   {
@@ -353,7 +353,7 @@ export const packageFiles = sqliteTable(
   (t) => ({ pk: uniqueIndex("package_files_pk").on(t.packageId, t.path) }),
 );
 
-/** Improvements the flagship agent proposes to Stonkware's own code (GitHub pull requests). */
+/** Improvements the flagship agent proposes to Hypeware's own code (GitHub pull requests). */
 export const devChanges = sqliteTable(
   "dev_changes",
   {

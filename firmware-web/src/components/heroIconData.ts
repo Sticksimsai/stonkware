@@ -1,4 +1,4 @@
-// Generated pixel-art icon data (from the Stonkware banner). Each layer animates independently.
+// Generated pixel-art icon data (from the Hypeware banner). Each layer animates independently.
 export type PixelLayer = { n: string; p: [string, string][] };
 export type PixelArt = { name: string; w: number; h: number; layers: PixelLayer[] };
 

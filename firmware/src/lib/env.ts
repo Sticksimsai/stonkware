@@ -19,15 +19,15 @@ export const env = {
   vaultKey: str("VAULT_KEY"),
   platformFeeWallet: str("PLATFORM_FEE_WALLET"),
   siteUrl: str("NEXT_PUBLIC_SITE_URL", "http://localhost:3000"),
-  /** Public website (frontend) URL — where storefronts and company pages live, e.g. https://stonkware.com. */
+  /** Public website (frontend) URL — where storefronts and company pages live, e.g. https://hypeware.fun. */
   appUrl: str("APP_URL", str("NEXT_PUBLIC_SITE_URL", "http://localhost:3000")),
   pinataJwt: str("PINATA_JWT"),
-  /** Stonkware's Meteora DBC config key (created once with `npm run meteora:config`). Only for LAUNCH_VENUE=meteora. */
+  /** Hypeware's Meteora DBC config key (created once with `npm run meteora:config`). Only for LAUNCH_VENUE=meteora. */
   dbcConfig: str("DBC_CONFIG"),
-  /** Where new tokens launch: "stonkfun" (Raydium LaunchLab under StonkFun's platform) or "meteora" (Stonkware's own DBC config). */
+  /** Where new tokens launch: "stonkfun" (Raydium LaunchLab under StonkFun's platform) or "meteora" (Hypeware's own DBC config). */
   launchVenue: str("LAUNCH_VENUE", "stonkfun") as "stonkfun" | "meteora",
   stonkfunApi: str("STONKFUN_API_URL", "https://www.stonkfun.xyz"),
-  /** Stonkware's share of each company's creator trading fees, in bps (StonkFun venue: Stonkware has no partner cut). */
+  /** Hypeware's share of each company's creator trading fees, in bps (StonkFun venue: Hypeware has no partner cut). */
   creatorFeeShareBps: num("CREATOR_FEE_SHARE_BPS", 2000),
   cronSecret: str("CRON_SECRET"),
   /** Comma-separated origins allowed to call /api (the Lovable frontend). */
@@ -57,7 +57,7 @@ export const env = {
   /** 480p | 720p | 1080p (Seedance) */
   hfVideoResolution: str("HIGGSFIELD_VIDEO_RESOLUTION", "720p"),
   hfImageToVideoEndpoint: str("HIGGSFIELD_I2V_ENDPOINT", "kling-video/v3.0-turbo/image-to-video"),
-  /** What Stonkware bills the treasury (USD), set at or slightly above Higgsfield's price. */
+  /** What Hypeware bills the treasury (USD), set at or slightly above Higgsfield's price. */
   hfImageUsd: num("HIGGSFIELD_IMAGE_USD", 0.01),
   hfVideoUsdPerSec: num("HIGGSFIELD_VIDEO_USD_PER_SEC", 0.21),
   /** Optional cap on video seconds per company per day. Unset = unlimited (the treasury is the limit). */

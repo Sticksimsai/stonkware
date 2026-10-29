@@ -18,7 +18,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     external_url: site,
     website: site,
     twitter: c.twitter ?? undefined,
-    attributes: [{ trait_type: "mind", value: c.modelLabel }, { trait_type: "launchpad", value: "Stonkware" }],
+    attributes: [{ trait_type: "mind", value: c.modelLabel }, { trait_type: "launchpad", value: "Hypeware" }],
     properties: { files: [{ uri: `${env.siteUrl}/api/image/${c.id}`, type: c.imageMime ?? "image/png" }], category: "image" },
   };
   return Response.json(body, { headers: { "Cache-Control": "public, max-age=3600", "Access-Control-Allow-Origin": "*" } });

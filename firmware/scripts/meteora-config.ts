@@ -1,4 +1,4 @@
-// One-time setup: create Stonkware's Meteora DBC config (curve + fees + graduation rules).
+// One-time setup: create Hypeware's Meteora DBC config (curve + fees + graduation rules).
 // Every company launches a pool against this config. Configs are immutable — to change
 // economics, create a new one and update DBC_CONFIG (existing pools keep their old config).
 //
@@ -12,9 +12,9 @@ import { partnerKeypair } from "./_env";
   const { LAUNCHPAD, WSOL, buildFirmwareConfig, dbc, feeSplitBps } = await import("../src/lib/meteora");
   const { validateConfigParameters } = await import("@meteora-ag/dynamic-bonding-curve-sdk");
   const split = feeSplitBps();
-  console.log("Stonkware launchpad config");
+  console.log("Hypeware launchpad config");
   console.log(`  trading fee        ${split.total / 100}%  (starts at ${LAUNCHPAD.startFeeBps / 100}% and decays over ${LAUNCHPAD.antiSniperSeconds}s — anti-sniper)`);
-  console.log(`  → company treasury ${split.company / 100}%   → Stonkware ${split.firmware / 100}%   → Meteora ${split.meteora / 100}%`);
+  console.log(`  → company treasury ${split.company / 100}%   → Hypeware ${split.firmware / 100}%   → Meteora ${split.meteora / 100}%`);
   console.log(`  market cap         ${LAUNCHPAD.initialMarketCapSol} SOL at launch → graduates to DAMM v2 at ${LAUNCHPAD.migrationMarketCapSol} SOL`);
   console.log(`  supply             ${LAUNCHPAD.totalSupply.toLocaleString()} (${LAUNCHPAD.decimals} decimals), immutable, no mint authority`);
 

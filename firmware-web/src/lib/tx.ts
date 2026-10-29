@@ -13,7 +13,7 @@ export async function sendSol(conn: Connection, wallet: WalletContextState, to: 
   tx.feePayer = wallet.publicKey;
   let sig: string;
   if (wallet.signTransaction) {
-    // Sign in the wallet, broadcast through Stonkware's RPC: works whichever network the wallet UI is set to.
+    // Sign in the wallet, broadcast through Hypeware's RPC: works whichever network the wallet UI is set to.
     const signed = await wallet.signTransaction(tx);
     sig = await conn.sendRawTransaction(signed.serialize(), { preflightCommitment: "confirmed" });
   } else {

@@ -28,7 +28,7 @@ import "./_env";
     const l = await retryLaunch(c.id);
     console.log(`✓ $${l.ticker} is ${l.status}${l.launchSig ? `: ${explorer("tx", l.launchSig)}` : ""}`);
   } else if (cmd === "refund") {
-    const r = await refundLaunch(c.id, "refunded by Stonkware");
+    const r = await refundLaunch(c.id, "refunded by Hypeware");
     console.log(`✓ refunded ${(r.lamports / 1e9).toFixed(4)} SOL to ${c.creatorWallet}: ${explorer("tx", r.sig)}`);
   } else throw new Error("usage: npm run launches -- list|retry|refund <slug>");
   process.exit(0);

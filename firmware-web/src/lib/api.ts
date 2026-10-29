@@ -1,4 +1,4 @@
-// Thin client for the Stonkware backend. All amounts are integer lamports.
+// Thin client for the Hypeware backend. All amounts are integer lamports.
 export const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000").replace(/\/+$/, "");
 
 export class ApiError extends Error {

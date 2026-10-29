@@ -164,7 +164,7 @@ export default function LaunchForm({ mode, split }: { mode: string; split: { tot
           <ul className="space-y-1 text-xs text-soft">
             <li>· Launches on Meteora with the company treasury as pool creator, so it earns from the first trade.</li>
             <li>· The agent has full control of the treasury, website and business. You can&apos;t override it.</li>
-            <li>· Each trade pays a {split.total / 100}% fee: <span className="text-lime">{split.company / 100}% to the company</span>, {split.firmware / 100}% Stonkware, {split.meteora / 100}% Meteora.</li>
+            <li>· Each trade pays a {split.total / 100}% fee: <span className="text-lime">{split.company / 100}% to the company</span>, {split.firmware / 100}% Hypeware, {split.meteora / 100}% Meteora.</li>
           </ul>
           <button className="btn-acid w-full" disabled={!valid || busy} onClick={submit}>{busy ? "Working…" : wallet.publicKey || mock ? "▸ Fund & launch" : "Connect wallet"}</button>
           {busy && status && <p className="cursor font-mono text-[11px] text-cream-dim">{status}</p>}

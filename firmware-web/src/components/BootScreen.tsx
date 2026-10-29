@@ -5,7 +5,7 @@ import { getJSON } from "@/lib/api";
 import { useReducedMotion } from "@/lib/hooks";
 
 const LINES = [
-  "STONKWARE BIOS v1.0 · (c) every token is a company",
+  "HYPEWARE BIOS v1.0 · (c) every token is a company",
   "> checking treasury vault .............. OK",
   "> waking minds  claude · gpt · gemini · grok OK",
   "> mounting stonkfun launchlab .......... OK",
@@ -49,7 +49,7 @@ export default function BootScreen() {
         <div className="flex flex-col items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/mark.png" alt="" width={96} height={96} className="breathe" />
-          <div className="glow mt-4 font-pixel text-lg tracking-widest text-cream">STONKWARE</div>
+          <div className="glow mt-4 font-pixel text-lg tracking-widest text-cream">HYPEWARE</div>
         </div>
         <pre className="mt-8 min-h-[120px] whitespace-pre-wrap font-mono text-[12px] leading-6 text-cream-dim">
           {LINES.slice(0, lines).map((l, i) => (

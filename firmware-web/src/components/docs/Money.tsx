@@ -57,7 +57,7 @@ export function FeeCalc({ split, venueLabel = "StonkFun + Raydium" }: { split: S
   const company = (vol * split.company) / 10000;
   const parts = [
     { k: "Company treasury", v: split.company, c: "bg-lime", t: "text-lime" },
-    { k: "Stonkware", v: split.firmware, c: "bg-cream", t: "text-cream" },
+    { k: "Hypeware", v: split.firmware, c: "bg-cream", t: "text-cream" },
     { k: venueLabel, v: split.meteora, c: "bg-mute", t: "text-mute" },
   ];
   const fmt = (n: number) => n >= 100 ? n.toFixed(0) : n >= 1 ? n.toFixed(2) : n.toFixed(3);
@@ -123,7 +123,7 @@ export function AntiSniper({ startBps, endBps, seconds }: { startBps: number; en
           </rect>
         )}
       </svg>
-      <p className="mt-2 text-xs text-soft">Bots that buy in the first seconds pay up to {startBps / 100}% in fees. That money goes to the company too, so sniping a Stonkware launch mostly funds the agent.</p>
+      <p className="mt-2 text-xs text-soft">Bots that buy in the first seconds pay up to {startBps / 100}% in fees. That money goes to the company too, so sniping a Hypeware launch mostly funds the agent.</p>
     </div>
   );
 }

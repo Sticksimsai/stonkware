@@ -1,4 +1,4 @@
-// The flagship agent improving Stonkware itself: it proposes code changes as pull requests, CI checks
+// The flagship agent improving Hypeware itself: it proposes code changes as pull requests, CI checks
 // them, safe ones merge and deploy automatically, protected ones wait for a human (see policy.ts).
 import { and, desc, eq, inArray, lt, or, isNull } from "drizzle-orm";
 import { db, schema } from "@/db";
@@ -53,7 +53,7 @@ async function materialize(changes: Change[], ref: string) {
 const body = (c: Company, why: string, lane: string, prot: string[]) => `${why}
 
 ---
-🤖 Proposed by the **$${c.ticker}** agent (Stonkware's self-improvement loop).
+🤖 Proposed by the **$${c.ticker}** agent (Hypeware's self-improvement loop).
 
 **Lane:** ${lane === "auto" ? "auto: merges and deploys by itself once all checks pass." : "review: touches protected code, so a maintainer must approve and merge it."}
 ${prot.length ? `\n**Protected / out-of-area files:**\n${prot.map((f) => `- \`${f}\``).join("\n")}\n` : ""}`;
@@ -77,7 +77,7 @@ export async function propose(c: Company, a: { title: string; why: string; chang
   const pr = await gh.openPull(title, body(c, why, lane, protectedFiles), branch);
   await label(pr.number, lane);
   await db.insert(D).values({ companyId: c.id, prNumber: pr.number, branch, title, why, lane, files: JSON.stringify(files.map((f) => f.path)), protectedFiles: JSON.stringify(protectedFiles) });
-  await emit(c.id, "ACTION", `Proposed an improvement to Stonkware: ${title}`, `${files.length} file${files.length === 1 ? "" : "s"} · ${lane === "auto" ? "ships automatically if checks pass" : "needs a maintainer's review"}`);
+  await emit(c.id, "ACTION", `Proposed an improvement to Hypeware: ${title}`, `${files.length} file${files.length === 1 ? "" : "s"} · ${lane === "auto" ? "ships automatically if checks pass" : "needs a maintainer's review"}`);
   return { number: pr.number, lane, protectedFiles, files: files.map((f) => f.path) };
 }
 
@@ -126,7 +126,7 @@ export async function pollDev() {
       const pr = await gh.getPull(row.prNumber);
       if (pr.merged || pr.state === "closed") {
         await db.update(D).set({ status: pr.merged ? "merged" : "closed", mergedAt: pr.merged ? new Date() : null, additions: pr.additions, deletions: pr.deletions, checkedAt: new Date() }).where(eq(D.id, row.id));
-        if (pr.merged) await emit(row.companyId, "ACTION", `Shipped to Stonkware: ${row.title}`, `+${pr.additions} −${pr.deletions} · approved by a maintainer`);
+        if (pr.merged) await emit(row.companyId, "ACTION", `Shipped to Hypeware: ${row.title}`, `+${pr.additions} −${pr.deletions} · approved by a maintainer`);
         continue;
       }
       const ci = ciOf(await gh.checks(pr.head.sha));
@@ -144,7 +144,7 @@ export async function pollDev() {
       }
       await gh.mergePull(row.prNumber, pr.head.sha, row.title);
       await db.update(D).set({ status: "merged", mergedAt: new Date() }).where(eq(D.id, row.id));
-      await emit(row.companyId, "ACTION", `Shipped to Stonkware: ${row.title}`, `+${pr.additions} −${pr.deletions} · merged automatically after all checks passed`);
+      await emit(row.companyId, "ACTION", `Shipped to Hypeware: ${row.title}`, `+${pr.additions} −${pr.deletions} · merged automatically after all checks passed`);
     } catch (e) {
       console.error("[selfdev]", row.prNumber, (e as Error).message);
       await db.update(D).set({ checkedAt: new Date() }).where(eq(D.id, row.id));

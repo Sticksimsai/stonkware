@@ -1,4 +1,4 @@
-// Small wallet helper for setting up Stonkware's own wallets (no Solana CLI needed).
+// Small wallet helper for setting up Hypeware's own wallets (no Solana CLI needed).
 //   npm run wallet -- new partner.json        create a keypair file (never overwrites)
 //   npm run wallet -- address partner.json    print its address
 //   npm run wallet -- balance <file|address>  print its SOL balance on SOLANA_RPC_URL

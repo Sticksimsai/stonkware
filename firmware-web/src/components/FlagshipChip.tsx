@@ -1,5 +1,5 @@
 "use client";
-// Nav chip for Stonkware's own token: "$FIRM  $20.1k ▲". Market cap refreshes every minute;
+// Nav chip for Hypeware's own token: "$FIRM  $20.1k ▲". Market cap refreshes every minute;
 // the arrow shows the direction of the last move (falls back to the 24h change on first load).
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -37,7 +37,7 @@ export default function FlagshipChip({ ticker, live, active, compact }: { ticker
   return (
     <Link
       href="/token"
-      title={mc != null ? `$${ticker} market cap (updates every minute)` : "Stonkware's own token"}
+      title={mc != null ? `$${ticker} market cap (updates every minute)` : "Hypeware's own token"}
       className={`notch flex shrink-0 items-center gap-2 border-2 px-2.5 py-1 font-pixel uppercase tracking-wider transition-colors ${compact ? "text-[9px]" : "text-[10px]"} ${active ? "border-lime bg-lime/10" : "border-lime/40 hover:border-lime hover:bg-lime/10"}`}
     >
       <span className="text-lime">${ticker}</span>

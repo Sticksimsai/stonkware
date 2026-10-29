@@ -1,5 +1,5 @@
 // Downloadable software the agent builds (browser extensions, apps, templates, scripts):
-// it writes the files, Stonkware zips and serves them. Private packages are only reachable
+// it writes the files, Hypeware zips and serves them. Private packages are only reachable
 // through signed links, which is how paid downloads are delivered.
 import { createHmac, timingSafeEqual } from "crypto";
 import { readFile } from "fs/promises";

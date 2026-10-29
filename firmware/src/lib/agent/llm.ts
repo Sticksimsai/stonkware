@@ -17,7 +17,7 @@ export async function complete(model: string, messages: Msg[], tools: ToolDef[],
       Authorization: `Bearer ${env.openrouterKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": env.siteUrl,
-      "X-Title": "Stonkware",
+      "X-Title": "Hypeware",
     },
     body: JSON.stringify({
       model,

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stonkware backend — one-shot setup for a fresh Ubuntu 24.04 DigitalOcean droplet.
+# Hypeware backend — one-shot setup for a fresh Ubuntu 24.04 DigitalOcean droplet.
 #
 #   ssh root@YOUR_DROPLET_IP
 #   curl -fsSL https://raw.githubusercontent.com/<you>/<repo>/main/deploy/setup-droplet.sh -o setup.sh
@@ -74,7 +74,7 @@ if ! command -v node >/dev/null; then
 else
   NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
   if [ "$NODE_MAJOR" -lt 20 ]; then
-    echo "Node $(node -v) is installed (another project may rely on it). Stonkware needs Node >= 20."
+    echo "Node $(node -v) is installed (another project may rely on it). Hypeware needs Node >= 20."
     echo "Upgrade it (curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs) and re-run."
     exit 1
   fi

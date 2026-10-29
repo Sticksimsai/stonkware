@@ -1,4 +1,4 @@
-// Token metadata. Uses Pinata (IPFS) when PINATA_JWT is set; otherwise Stonkware hosts the
+// Token metadata. Uses Pinata (IPFS) when PINATA_JWT is set; otherwise Hypeware hosts the
 // Metaplex JSON itself at /api/meta/<companyId> (keep your domain stable — wallets cache this URI).
 import { env, isLive } from "./env";
 

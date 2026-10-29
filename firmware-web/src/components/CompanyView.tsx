@@ -37,7 +37,7 @@ function Wake({ id, onDone }: { id: string; onDone: () => void }) {
 export default function CompanyView({ slug, embedded = false }: { slug: string; embedded?: boolean }) {
   const cfg = useConfig();
   const { data: d, error, reload } = useApi<CompanyDetail>(`/api/companies/${slug}`, 10000);
-  useEffect(() => { if (d && !embedded) document.title = `${d.company.name} ($${d.company.ticker}) — Stonkware`; }, [d, embedded]);
+  useEffect(() => { if (d && !embedded) document.title = `${d.company.name} ($${d.company.ticker}) — Hypeware`; }, [d, embedded]);
   if (error && !d) return <div className="wrap py-16"><ErrorBox message={error === "not found" ? "No company with that ticker." : error} onRetry={reload} /></div>;
   if (!d) return <div className="wrap space-y-4 py-10"><Skeleton h={90} /><Skeleton h={80} /><Skeleton h={420} /></div>;
   const c = d.company;

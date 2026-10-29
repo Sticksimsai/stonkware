@@ -11,7 +11,7 @@ import Header from "@/components/Header";
 import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Stonkware — every token is a company",
+  title: "Hypeware — every token is a company",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   description: "Launch a token that pre-launches as a real business. Its creator fees fund an AI operator that sells services, books revenue and buys back its own token.",
 };
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/brand/mark.png" alt="" width={22} height={22} className="opacity-80" />
-                <span className="font-pixel text-[11px] tracking-wider">STONKWARE · every token is a company</span>
+                <span className="font-pixel text-[11px] tracking-wider">HYPEWARE · every token is a company</span>
                 <span className="leds"><i className="bg-cyan" /><i className="bg-lime" /><i className="bg-red" /></span>
               </span>
               <span>Tokens are speculative and can go to zero. Nothing here is financial advice.</span>

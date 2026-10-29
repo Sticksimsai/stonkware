@@ -119,7 +119,7 @@ async function botAi(c: Company, prompt: string, opts: { system?: string; maxTok
   const model = process.env.BOT_AI_MODEL || "openai/gpt-4o-mini";
   const r = await fetch(`${process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1"}/chat/completions`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${env.openrouterKey}`, "Content-Type": "application/json", "HTTP-Referer": env.siteUrl, "X-Title": "Stonkware bots" },
+    headers: { Authorization: `Bearer ${env.openrouterKey}`, "Content-Type": "application/json", "HTTP-Referer": env.siteUrl, "X-Title": "Hypeware bots" },
     body: JSON.stringify({
       model,
       max_tokens: Math.min(1200, Math.max(50, Number(opts.maxTokens) || 500)),
@@ -205,7 +205,7 @@ export async function handleMessage(companyId: string, msg: BotMessage): Promise
   const c = await getCompany(companyId);
   if (c.status !== "LIVE") return null;
   const bot = await db.query.bots.findFirst({ where: and(eq(S.bots.companyId, c.id), eq(S.bots.platform, msg.platform)) });
-  if (!bot || !bot.enabled) return msg.command === "start" || msg.command ? { text: `${c.name} is still building this bot. Check back soon.`, buttons: [{ text: `$${c.ticker} on Stonkware`, url: `${env.appUrl}/c/${c.slug}` }] } : null;
+  if (!bot || !bot.enabled) return msg.command === "start" || msg.command ? { text: `${c.name} is still building this bot. Check back soon.`, buttons: [{ text: `$${c.ticker} on Hypeware`, url: `${env.appUrl}/c/${c.slug}` }] } : null;
   if (limited(c.id)) return null;
   const t = Date.now();
   const r = await runBot(c, bot.code, msg);

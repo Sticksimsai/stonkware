@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Switch Stonkware to LIVE on Solana mainnet with StonkFun as the launch venue (Raydium LaunchLab under StonkFun's platform).
+# Switch Hypeware to LIVE on Solana mainnet with StonkFun as the launch venue (Raydium LaunchLab under StonkFun's platform).
 #
 #   sudo FEE_WALLET=<your wallet> RPC=<mainnet RPC, e.g. Helius> bash deploy/go-live-stonkfun.sh
 #
 # Optional:
 #   PUBLIC_RPC=<RPC the website's wallets use>     default: same as RPC (restrict the key to your domain)
-#   FEE_SHARE_BPS=2000                             Stonkware's share of each company's creator fees (2000 = 20%)
+#   FEE_SHARE_BPS=2000                             Hypeware's share of each company's creator fees (2000 = 20%)
 #   YES=1                                          skip the confirmation prompt
 # No Meteora config, partner wallet or SOL is needed for this step. It never launches anything:
 # it finishes by SIMULATING a launch (npm run stonkfun:probe).
@@ -13,7 +13,7 @@ set -euo pipefail
 
 APP_USER="${APP_USER:-firmware}"
 APP_DIR="${APP_DIR:-/home/$APP_USER/app}"
-FEE_WALLET="${FEE_WALLET:?Set FEE_WALLET=<your Solana wallet> (receives compute repayments and the Stonkware fee share)}"
+FEE_WALLET="${FEE_WALLET:?Set FEE_WALLET=<your Solana wallet> (receives compute repayments and the Hypeware fee share)}"
 RPC="${RPC:?Set RPC=<your mainnet RPC URL> (Helius/Triton/QuickNode)}"
 PUBLIC_RPC="${PUBLIC_RPC:-$RPC}"
 FEE_SHARE_BPS="${FEE_SHARE_BPS:-2000}"
@@ -28,7 +28,7 @@ get_env() { grep -E "^$1=" .env | head -1 | cut -d= -f2- | tr -d '"' || true; }
 as npm run -s wallet -- address "$FEE_WALLET" >/dev/null 2>&1 || { echo "FEE_WALLET is not a valid Solana address"; exit 1; }
 
 if [ "${YES:-0}" != "1" ]; then
-  printf '\n\033[1;31mThis switches Stonkware to MAINNET with real money.\033[0m Launches, payments and agent spending will be real.\n'
+  printf '\n\033[1;31mThis switches Hypeware to MAINNET with real money.\033[0m Launches, payments and agent spending will be real.\n'
   read -r -p 'Type MAINNET to continue: ' ans; [ "$ans" = "MAINNET" ] || { echo "cancelled"; exit 1; }
 fi
 
@@ -66,10 +66,10 @@ curl -fsS "http://127.0.0.1:$PORT/api/config" | grep -oE '"(mode|cluster|venue)"
 
 cat <<MSG
 
-✓ Stonkware is LIVE on mainnet, launching on StonkFun.
+✓ Hypeware is LIVE on mainnet, launching on StonkFun.
   • Do one small real launch yourself first (SOL pair, small dev buy). Check it appears on stonkfun.xyz within a
     couple of minutes and that the dev-buy tokens reach your wallet.
-  • Fee income is collected every 60 min, swapped to SOL; Stonkware keeps $((FEE_SHARE_BPS / 100))%.
+  • Fee income is collected every 60 min, swapped to SOL; Hypeware keeps $((FEE_SHARE_BPS / 100))%.
   • Logs: sudo -u $APP_USER pm2 logs firmware
   • Undo: restore a .env.bak-* file and pm2 restart firmware.
 MSG

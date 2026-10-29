@@ -30,7 +30,7 @@ import "./_env";
     if (c.flagship) throw new Error("that's the flagship; use npm run flagship -- update instead");
     await db.update(C).set({ status: "ARCHIVED", wakeRequested: false, sleepingUntil: new Date("2999-01-01") }).where(eq(C.id, c.id));
     // a shift in progress stops at its next step (it checks the status); mark it ended
-    await db.update(schema.runs).set({ status: "ERROR", error: "archived by Stonkware", endedAt: new Date(), liveUrl: null }).where(and(eq(schema.runs.companyId, c.id), eq(schema.runs.status, "RUNNING")));
+    await db.update(schema.runs).set({ status: "ERROR", error: "archived by Hypeware", endedAt: new Date(), liveUrl: null }).where(and(eq(schema.runs.companyId, c.id), eq(schema.runs.status, "RUNNING")));
     await db.update(schema.offers).set({ active: false }).where(eq(schema.offers.companyId, c.id));
     console.log(`✓ $${c.ticker} archived: removed from the site, agent stopped, offers closed. (was ${c.status})`);
     console.log(`  treasury ${c.treasuryPubkey} is untouched. Undo with: npm run company -- restore ${c.slug}`);

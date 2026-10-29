@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Switch Stonkware to LIVE on Solana MAINNET (real SOL).
+# Switch Hypeware to LIVE on Solana MAINNET (real SOL).
 #
 #   sudo FEE_WALLET=<your wallet> RPC=<mainnet RPC, e.g. Helius> bash deploy/go-live-mainnet.sh
 #
@@ -15,7 +15,7 @@ set -euo pipefail
 
 APP_USER="${APP_USER:-firmware}"
 APP_DIR="${APP_DIR:-/home/$APP_USER/app}"
-FEE_WALLET="${FEE_WALLET:?Set FEE_WALLET=<your Solana wallet> (receives compute repayments and Stonkware's revenue share)}"
+FEE_WALLET="${FEE_WALLET:?Set FEE_WALLET=<your Solana wallet> (receives compute repayments and Hypeware's revenue share)}"
 RPC="${RPC:?Set RPC=<your mainnet RPC URL> (Helius/Triton/QuickNode; the public RPC can't run fee claims)}"
 PUBLIC_RPC="${PUBLIC_RPC:-$RPC}"
 NEED_SOL="${NEED_SOL:-0.06}"
@@ -35,7 +35,7 @@ fi
 as npm run -s wallet -- address "$FEE_WALLET" >/dev/null 2>&1 || { echo "FEE_WALLET is not a valid Solana address"; exit 1; }
 
 if [ "${YES:-0}" != "1" ]; then
-  printf '\n\033[1;31mThis switches Stonkware to MAINNET with real money.\033[0m Launches, payments, fee claims and agent spending will be real.\n'
+  printf '\n\033[1;31mThis switches Hypeware to MAINNET with real money.\033[0m Launches, payments, fee claims and agent spending will be real.\n'
   read -r -p 'Type MAINNET to continue: ' ans; [ "$ans" = "MAINNET" ] || { echo "cancelled"; exit 1; }
 fi
 
@@ -62,7 +62,7 @@ set_env CLAIM_EVERY_MIN "120"
 set_env VANITY_MINTS "1"
 del_env VANITY_ANY_CLUSTER
 del_env PRINTFUL_CONFIRM   # default on mainnet: real orders are submitted for printing
-[ "$PUBLIC_RPC" = "$RPC" ] && [[ "$RPC" == *api-key* || "$RPC" == *helius* ]] && warn "The website will use your RPC URL too (it's visible in the browser). Restrict that key to stonkware.com in your RPC dashboard, or pass PUBLIC_RPC separately."
+[ "$PUBLIC_RPC" = "$RPC" ] && [[ "$RPC" == *api-key* || "$RPC" == *helius* ]] && warn "The website will use your RPC URL too (it's visible in the browser). Restrict that key to hypeware.fun in your RPC dashboard, or pass PUBLIC_RPC separately."
 
 if [[ -n "$CARRY_FROM" && "$CARRY_FROM" != "$(get_env DATABASE_URL)" ]]; then
   say "Carrying over the vanity pool and the flagship from ${CARRY_FROM#file:}"
@@ -70,7 +70,7 @@ if [[ -n "$CARRY_FROM" && "$CARRY_FROM" != "$(get_env DATABASE_URL)" ]]; then
   as env FIRMWARE_MODE=live npm run -s carry-over -- --from "$CARRY_FROM" || warn "carry-over failed (continuing): run it later with npm run carry-over -- --from $CARRY_FROM"
 fi
 
-say "Partner wallet (Stonkware's Meteora fee claimer)"
+say "Partner wallet (Hypeware's Meteora fee claimer)"
 [ -f partner.json ] || as npm run -s wallet -- new partner.json >/dev/null
 chmod 600 partner.json
 set_env PARTNER_KEYPAIR "$APP_DIR/partner.json"
@@ -110,7 +110,7 @@ as npm run -s vanity -- status || true
 
 cat <<MSG
 
-✓ Stonkware is LIVE on mainnet.
+✓ Hypeware is LIVE on mainnet.
   • Phantom: turn Testnet Mode OFF.
   • Do one small real launch yourself first (small dev buy), then check the pool on Meteora / Jupiter and its first fee claim.
   • Flagship: launch day → sudo -u $APP_USER npm run flagship -- set-ca <mint>
