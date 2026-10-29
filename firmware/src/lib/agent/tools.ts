@@ -18,6 +18,7 @@ import { downloadUrl, listPackages, packageFilesList, packageName, publishPackag
 import { createMerchOffer, getProduct, merchEnabled, searchCatalog } from "../merch";
 import * as dev from "../selfdev";
 import { listFiles, readFile, searchCode } from "../selfdev/github";
+import { cancelOrder, closePosition, marketsText, placeOrder, positionsText, riskLimits, tradingEnabled } from "../hl/trading";
 
 const S = schema;
 const obj = (properties: Record<string, unknown>, required: string[] = []) => ({ type: "object", properties, required });
@@ -71,6 +72,17 @@ export const TOOLS: ToolDef[] = [
   { name: "buyback", description: "Spend SOL buying your own token on the market; burns the tokens unless burn=false (then the treasury holds them).", parameters: obj({ sol: n("SOL to spend"), burn: { type: "boolean" } }, ["sol"]) },
   { name: "transfer_sol", description: "Send SOL from the treasury to any Solana address (pay contractors, services, rewards…). Irreversible.", parameters: obj({ to: s("recipient address"), sol: n("amount in SOL"), reason: s("public reason, shown on your page") }, ["to", "sol", "reason"]) },
 
+  { name: "hl_markets", description: "HYPERLIQUID TRADING. Markets you can trade: perps (BTC, ETH, SOL, HYPE…) and USDC spot pairs (e.g. HYPE/USDC), with price, 24h volume, hourly funding and your max leverage. Optional search.", parameters: obj({ query: s("optional filter, e.g. BTC or HYPE") }) },
+  { name: "hl_positions", description: "HYPERLIQUID TRADING. Your Hyperliquid equity, perp positions (entry, PnL, liquidation price), spot tokens, open orders, and how much of each risk limit you have left today.", parameters: obj({}) },
+  { name: "hl_order", description: "HYPERLIQUID TRADING. Place an order with your company's money. Perps use isolated margin (a position can only lose its own margin). Limits (enforced by the platform): leverage ≤ MAX_LEV×, one order ≤ ORDER_PCT% of equity at risk, total at risk ≤ RISK_PCT%, and new trades stop for the day after a LOSS_PCT% daily loss. Market orders fill now within a small price band; limit orders rest on the book. Trading can lose money: size positions like the treasury pays for your work.", parameters: obj({
+    market: s("e.g. BTC (perp) or HYPE/USDC (spot)"), side: { type: "string", enum: ["buy", "sell"], description: "buy = long / buy spot; sell = short / sell spot" },
+    size: n("amount in the base asset (e.g. 0.01 BTC). Give size or usd"), usd: n("order value in USD instead of size"),
+    type: { type: "string", enum: ["market", "limit"] }, price: n("limit price (limit orders)"), leverage: n("perps: whole number, default 1"),
+    reduce_only: { type: "boolean", description: "perps: only shrink an existing position" }, tif: { type: "string", enum: ["Gtc", "Ioc", "Alo"], description: "limit orders: Gtc (default), Ioc, or Alo (post-only)" },
+  }, ["market", "side", "type"]) },
+  { name: "hl_cancel", description: "HYPERLIQUID TRADING. Cancel one of your open orders.", parameters: obj({ market: s("market of the order"), order_id: n("order id from hl_positions") }, ["market", "order_id"]) },
+  { name: "hl_close", description: "HYPERLIQUID TRADING. Close a whole perp position, or sell all of a spot token, at market. Always allowed, even after the daily loss limit.", parameters: obj({ market: s("e.g. BTC or HYPE/USDC") }, ["market"]) },
+
   { name: "post_update", description: "Publish a public post to your company feed.", parameters: obj({ title: s("headline"), body: s("post body") }, ["title", "body"]) },
   { name: "remember", description: "Save a note to long-term memory (you see these every shift).", parameters: obj({ note: s("max 400 chars") }, ["note"]) },
   { name: "sleep", description: "End the shift and sleep for a while to save money.", parameters: obj({ hours: n("0.25–48"), reason: s("why") }, ["hours", "reason"]) },
@@ -81,17 +93,21 @@ export const BROWSER_TOOLS = new Set(["web_search", "open_url", "click", "fill",
 export const MEDIA_TOOLS = new Set(["generate_image", "generate_video", "list_media"]);
 export const MERCH_TOOLS = new Set(["merch_catalog", "merch_product", "create_merch_offer"]);
 export const DEV_TOOLS = new Set(["code_tree", "code_read", "code_search", "code_propose", "code_update", "code_prs", "code_close"]);
+export const TRADE_TOOLS = new Set(["hl_markets", "hl_positions", "hl_order", "hl_cancel", "hl_close"]);
 
 /** Tool list with live prices filled in; media tools only when the studio is enabled. */
 const SITE_TOOLS = new Set(["write_site_file", "read_site_file", "list_site_files", "delete_site_file"]);
 
-export function toolsFor(mediaOn: boolean, c?: Pick<Company, "flagship">): ToolDef[] {
+export function toolsFor(mediaOn: boolean, c?: Pick<Company, "flagship" | "hlAgentApprovedAt">): ToolDef[] {
   const devOn = !!c?.flagship && dev.selfdevEnabled();
+  const tradeOn = !!c && tradingEnabled(c);
+  const lim = riskLimits();
   // the flagship has no separate company website: its product is Hypeware itself, changed through code PRs
   const siteOn = !c?.flagship;
-  return TOOLS.filter((t) => (mediaOn || !MEDIA_TOOLS.has(t.name)) && (merchEnabled() || !MERCH_TOOLS.has(t.name)) && (devOn || !DEV_TOOLS.has(t.name)) && (siteOn || !SITE_TOOLS.has(t.name))).map((t) => ({
+  return TOOLS.filter((t) => (mediaOn || !MEDIA_TOOLS.has(t.name)) && (merchEnabled() || !MERCH_TOOLS.has(t.name)) && (devOn || !DEV_TOOLS.has(t.name)) && (siteOn || !SITE_TOOLS.has(t.name)) && (tradeOn || !TRADE_TOOLS.has(t.name))).map((t) => ({
     ...t,
-    description: t.description.replace("IMAGE_USD", estimateUsd("image").toFixed(3)).replace("VIDEO_USD", (estimateUsd("video", 1)).toFixed(3)),
+    description: t.description.replace("IMAGE_USD", estimateUsd("image").toFixed(3)).replace("VIDEO_USD", (estimateUsd("video", 1)).toFixed(3))
+      .replace("MAX_LEV", String(lim.maxLeverage)).replace("ORDER_PCT", String(lim.maxOrderPct)).replace("RISK_PCT", String(lim.maxRiskPct)).replace("LOSS_PCT", String(lim.dailyLossPct)),
   }));
 }
 
@@ -133,6 +149,7 @@ const str = (v: unknown, max = 100_000) => String(v ?? "").slice(0, max);
 export async function runTool(ctx: ToolCtx, name: string, a: Record<string, unknown>): Promise<string> {
   const c = (ctx.company = await getCompany(ctx.company.id));
   if (DEV_TOOLS.has(name) && !(c.flagship && dev.selfdevEnabled())) throw new Error("code tools are only available to the flagship agent");
+  if (TRADE_TOOLS.has(name) && !tradingEnabled(c)) throw new Error("Hyperliquid trading isn't enabled for this company");
   switch (name) {
     // ── Hypeware's own code (flagship) ──
     case "code_tree": {
@@ -394,6 +411,20 @@ export async function runTool(ctx: ToolCtx, name: string, a: Record<string, unkn
       const sig = await transferSol(c, to, lamports(Number(a.sol)), str(a.reason, 300));
       return `sent. sig ${sig}`;
     }
+
+    // ── Hyperliquid trading ──
+    case "hl_markets": return marketsText(a.query ? str(a.query, 40) : undefined);
+    case "hl_positions": return positionsText(c);
+    case "hl_order": {
+      const num = (v: unknown) => (v === undefined || v === null || v === "" ? undefined : Number(v));
+      return placeOrder(c, {
+        market: str(a.market, 40), side: a.side === "sell" ? "sell" : a.side === "buy" ? "buy" : (str(a.side, 10) as "buy"),
+        size: num(a.size), usd: num(a.usd), type: a.type === "limit" ? "limit" : "market", price: num(a.price), leverage: num(a.leverage),
+        reduceOnly: a.reduce_only === true, tif: a.tif === "Ioc" || a.tif === "Alo" ? a.tif : undefined,
+      });
+    }
+    case "hl_cancel": return cancelOrder(c, str(a.market, 40), Number(a.order_id));
+    case "hl_close": return closePosition(c, str(a.market, 40));
 
     // ── comms & control ──
     case "post_update": await emit(c.id, "POST", str(a.title, 200), str(a.body, 4000)); return "posted";

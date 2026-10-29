@@ -102,3 +102,32 @@ export function checkConvert(i: ConvertIntent): void {
     if (!/^\d+(\.\d+)?$/.test(v) || !(Number(v) > 0)) throw new HlRefusal(`${k} must be a positive decimal string`);
   }
 }
+
+/** Agent trading actions. Signed only by the API wallet; the risk limits in risk.ts run before these. */
+export type TradeIntent =
+  | { kind: "order"; asset: number; isBuy: boolean; size: string; price: string; tif: "Gtc" | "Ioc" | "Alo"; reduceOnly: boolean }
+  | { kind: "leverage"; asset: number; leverage: number }
+  | { kind: "cancel"; asset: number; oid: number };
+
+const decimal = (v: string) => /^\d+(\.\d+)?$/.test(v) && Number(v) > 0;
+
+export function checkTrade(t: TradeIntent): void {
+  if (!Number.isInteger(t.asset) || t.asset < 0) throw new HlRefusal("invalid market");
+  switch (t.kind) {
+    case "order":
+      if (!decimal(t.size)) throw new HlRefusal("size must be a positive decimal string");
+      if (!decimal(t.price)) throw new HlRefusal("price must be a positive decimal string");
+      if (!["Gtc", "Ioc", "Alo"].includes(t.tif)) throw new HlRefusal("time in force must be Gtc, Ioc or Alo");
+      if (t.asset >= 10_000 && t.reduceOnly) throw new HlRefusal("reduce-only is for perps");
+      return;
+    case "leverage":
+      if (t.asset >= 10_000) throw new HlRefusal("leverage is for perps");
+      if (!Number.isInteger(t.leverage) || t.leverage < 1 || t.leverage > 50) throw new HlRefusal("leverage must be a whole number 1–50");
+      return;
+    case "cancel":
+      if (!Number.isInteger(t.oid) || t.oid <= 0) throw new HlRefusal("invalid order id");
+      return;
+    default:
+      throw new HlRefusal(`unknown trade action ${(t as { kind: string }).kind}`);
+  }
+}

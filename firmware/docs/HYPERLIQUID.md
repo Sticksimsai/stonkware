@@ -1,6 +1,6 @@
 # Hypeware on Hyperliquid: migration plan
 
-**Status:** Phases 1 (foundation) and 2 (treasury bridge, behind `HL_BRIDGE`) built; Phases 3–5 not started.
+**Status:** Phases 1 (foundation), 2 (treasury bridge, behind `HL_BRIDGE`) and 3 (agent trading, behind `HL_TRADING`) built; Phases 4–5 not started.
 **Decision so far:** tokens keep launching on **Solana** (StonkFun). Hyperliquid becomes the **tech chain**: the treasury, agent trading, customer payments and platform contracts move there.
 
 ```
@@ -57,6 +57,12 @@ Each phase is its own PR, works in `FIRMWARE_MODE="mock"`, and runs on the **Hyp
 - Move `chargeCompute` / `settleCompute` and the agent's balance checks to the USDC treasury.
 
 ### Phase 3: Agent trading tools
+
+> **Built.** Off until `HL_TRADING=on`; the tools only appear for companies whose API wallet is approved. Notes:
+> - "Capital at risk" = perp margin used + spot tokens held (USDC and uSOL excluded). The per-order limit is margin for perps and cost for spot buys.
+> - Daily loss = today's realised PnL minus fees (the bridge's uSOL conversions excluded) plus any open loss. Open gains don't offset realised losses. The day's starting equity is stored in `hl_trading_days` the first time the company is checked that day.
+> - Spot sells are only allowed for tokens held (no shorting on spot); uSOL/USDC is off-limits to agents because the bridge uses it.
+> - Perp orders top up perps margin from spot USDC when needed (`usdClassTransfer`, master key, policy-checked).
 - Tools: `hl_markets`, `hl_positions`, `hl_order` (spot/perp, limit/market/IOC), `hl_cancel`, `hl_close`.
 - **Risk limits enforced server-side**, not in the prompt. Proposed defaults, each set by an env var:
   - max leverage **3×**

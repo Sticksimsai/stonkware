@@ -88,6 +88,17 @@ export const env = {
   hlMaxSlippageBps: num("HL_MAX_SLIPPAGE_BPS", 300),
   /** Platform's Hyperliquid address: compute is repaid here in USDC when the company has it. */
   platformHlWallet: str("PLATFORM_HL_WALLET"),
+  /** "on" gives agents Hyperliquid trading tools (perps + spot) within the limits below. Off by default. */
+  hlTrading: str("HL_TRADING", "off") === "on",
+  hlMaxLeverage: num("HL_MAX_LEVERAGE", 3),
+  /** Capital at risk (perp margin + spot tokens) as % of Hyperliquid equity. */
+  hlMaxRiskPct: num("HL_MAX_RISK_PCT", 25),
+  /** One order's margin or cost as % of equity. */
+  hlMaxOrderPct: num("HL_MAX_ORDER_PCT", 10),
+  /** Trading pauses until 00:00 UTC once the day's loss reaches this % of the day's starting equity. */
+  hlDailyLossPct: num("HL_DAILY_LOSS_PCT", 10),
+  /** Optional comma-separated allow-list, e.g. "BTC,ETH,SOL,HYPE/USDC". Empty = every market. */
+  hlAllowedMarkets: str("HL_ALLOWED_MARKETS"),
 };
 
 export const isLive = () => env.mode === "live";

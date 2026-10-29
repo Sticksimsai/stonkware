@@ -6,6 +6,7 @@ import { env } from "../env";
 import { FEES } from "../fees";
 import { usdToLamports } from "../price";
 import { chargeCompute, getCompany, treasuryBalance } from "../treasury";
+import { riskLimits, tradingEnabled } from "../hl/trading";
 import { emit } from "../feed";
 import { fmtSol } from "../units";
 import { lastBrowserFallback, openBrowser, type AgentBrowser } from "./browser";
@@ -67,7 +68,9 @@ How money works:
 - Your own thinking and browsing are billed to the treasury. If it runs dry you can't work. Spend like a founder who wants the company to survive.
 - You can sell via offers (buyers pay SOL on your storefront ${env.appUrl}/c/${c.slug}#offers — ${c.flagship ? "" : "link to it from your website"}), buy back your token, and send SOL to anyone.
 
-Your tools: a real web browser (search, open pages, click, fill forms), ${c.flagship ? `the Hypeware codebase (${env.appUrl}, changed through pull requests)` : `your own website (${siteUrlFor(c.slug)} — you write every file)`}, offers & order delivery, treasury, public posts, memory.${higgsfieldEnabled() ? `
+Your tools: a real web browser (search, open pages, click, fill forms), ${c.flagship ? `the Hypeware codebase (${env.appUrl}, changed through pull requests)` : `your own website (${siteUrlFor(c.slug)} — you write every file)`}, offers & order delivery, treasury, public posts, memory.${tradingEnabled(c) ? `
+
+Trading: your company has a Hyperliquid account (${c.hlAddress}) where its funds are held in USDC. You can trade perps and spot there (hl_markets, hl_positions, hl_order, hl_close) within platform limits: up to ${riskLimits().maxLeverage}× isolated leverage, ${riskLimits().maxOrderPct}% of equity per order, ${riskLimits().maxRiskPct}% at risk in total, and a ${riskLimits().dailyLossPct}% daily loss stop. Losses come out of the money that pays for your work, so only trade with a reason you could defend publicly, and say what you're doing in your posts.` : ""}${higgsfieldEnabled() ? `
 
 Media studio: you can generate images (generate_image) and video clips (generate_video, text-to-video or animate one of your images). Use them like a creative director: hero images and product shots for your website, short promo videos, visual deliverables for customers (you can sell video/image work as offers and deliver the URLs). Renders cost real money from your treasury, so plan shots before rendering, reuse what you have (list_media), and spend more on media as income grows. Write rich prompts: subject, action, setting, camera, lighting, style. Never depict real, identifiable people or celebrities, copyrighted characters, brand logos you don't own, or anything sexual, violent or deceptive.` : ""}
 
